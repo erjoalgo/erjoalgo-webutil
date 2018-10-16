@@ -34,7 +34,33 @@
                   (retry-delay 2)
                   (auto-refresh-p t)
                   (api-base-url *api-base-url*))
-  "retuns values: json-as-alist http-resp-code resp-string"
+
+  "Make a REST api request to the URL: API-BASE-URL/RESOURCE, with query parameters
+   PARAMS-ALIST. Retry RETRY-COUNT times with a delay of RETRY-DELAY seconds
+   after eeach retry in case of network errors.
+
+   Returns values (DECODED-JSON HTTP-RESP-CODE RESP-STRING)
+
+   - DECODED-JSON is a json object decoded via cl-json
+   - HTTP-RESP-CODE is the http response code as a number
+   - RESP-STRING is the raw response string before cl-json decoding
+
+   If DEPAGINATE is non-nil, attempt to depaginate the requested resource
+   by making several requests. If DEPAGINATE is a positive number, it specifies the max
+   number of pages to request, otherwise no such limit is imposed.
+
+   When depagination is on:
+
+   - DECODED-JSON object is a list of resources across all requesed pages.
+   - RETRY-COUNT applies to each page request.
+   - RESP-STRING, HTTP-RESP-CODE values are based on the last retrieved page.
+   - A fourth value ERROR is returned. Any non-2xx response code or persistent
+     network error short-circuits depagination: partial results are returned
+     and details of the error are stored in ERROR
+
+   When AUTO-REFRESH-P is non-nil, an one-time attempt (per retry) is made, if possible,
+   to refresh the token on 403 errors."
+
   (let* ((url (concatenate 'string api-base-url resource))
          (params (alist-to-http-params params-alist))
          additional-headers)
