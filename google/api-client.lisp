@@ -32,10 +32,10 @@
                   (depaginate t)
                   (retry-count 500)
                   (retry-delay 2)
-                  (auto-refresh-p t))
+                  (auto-refresh-p t)
+                  (api-base-url *api-base-url*))
   "retuns values: json-as-alist http-resp-code resp-string"
-  (let* ((api-base-url default-api-base-url)
-         (url (concatenate 'string api-base-url resource))
+  (let* ((url (concatenate 'string api-base-url resource))
          (params (alist-to-http-params params-alist))
          additional-headers)
 
