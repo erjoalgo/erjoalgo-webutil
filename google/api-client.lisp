@@ -162,3 +162,21 @@
                                       :resource-path
                                       :api-base-url))
                    append (list k v)))))
+
+(defmacro defapi (base-url &key
+                             get
+                             get-depaginate
+                             post
+                             delete)
+  `(let ()
+     ;; (*api-base-url* ,base-url)
+     ,@(loop for (method kw-args endpoints)
+          in
+            `((:get ,get)
+              (:get (:depaginate t) ,get-depaginate)
+              (:post ,post)
+              (:delete ,delete))
+          append (loop for (name . endpoint-params) in endpoints
+                    collect `(defapi-endpoint ,name ,method
+                               ,base-url
+                               ,@(append endpoint-params kw-args))))))
