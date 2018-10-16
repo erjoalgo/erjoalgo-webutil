@@ -1,7 +1,6 @@
-(in-package #:yt-comments/client)
-
 (defvar default-api-base-url
   "https://www.googleapis.com/youtube/v3/")
+(in-package #:erjoalgo-webutil)
 
 (defstruct resp-page
   items
