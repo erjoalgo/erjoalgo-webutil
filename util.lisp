@@ -22,3 +22,12 @@
                                              second)
 	  `(-> ,(apply 'list a first a-rest) ,@rest)))
       (car forms)))
+
+(defmacro ->> (&rest forms)
+  (if (cadr forms)
+      (destructuring-bind (a b . rest) forms
+        `(->> ,(append
+                (if (atom b) (cons b nil) b)
+                (list a))
+              ,@rest))
+      (car forms)))
