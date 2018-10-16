@@ -142,11 +142,23 @@
                        (format t "fetched ~A items~%" (length items))
                        (return (values items status-code resp-string error))))))))
 
-(defmacro def-api-endpoint (resource-as-sym &key defaults
-                                              (fun-sym resource-as-sym))
-  `(defun ,fun-sym (login &rest params-flat)
-     (let ((params-alist
-           (loop for (k v) on params-flat by #'cddr
-              collect (cons k v))))
-       (api-req login ,(lisp-to-json-key resource-as-sym)
-                (append params-alist ,defaults)))))
+(defmacro defapi-endpoint (name method api-base-url
+                           &rest rest
+                           &key default-params
+                             (resource-path (lisp-to-json-key name))
+                             &allow-other-keys)
+  ;; "Defines a function FUN-SYM that calls an api-endpoint.
+  ;;  DEFAULT-PARAMS specifies defaults parameters used in the request
+  ;;  unless overridden later by the caller."
+  `(defun ,(intern (format nil "~A-~A" name method)) (login &rest params-flat)
+     ,(format nil "~A ~A/~A ~A" method api-base-url resource-path
+              (or default-params ""))
+     (api-req login ,resource-path
+              (append (params params-flat) ,default-params)
+              :api-base-url ,api-base-url
+              ,@(loop for (k v . etc) on rest by #'cddr
+                   unless (member k '(:default-params
+                                      :name
+                                      :resource-path
+                                      :api-base-url))
+                   append (list k v)))))
