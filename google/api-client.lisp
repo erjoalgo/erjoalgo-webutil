@@ -29,7 +29,7 @@
 
 (defun api-req (login resource params-alist
                 &key (method :get)
-                  (depaginate-p t)
+                  (depaginate t)
                   (retry-count 500)
                   (retry-delay 2)
                   (auto-refresh-p t))
@@ -71,7 +71,7 @@
                      (let* ((string (babel:octets-to-string octets :encoding :utf-8))
                             (json (cl-json:decode-json-from-string string)))
                        (values json http-code string))))))
-      (if (not depaginate-p)
+      (if (not depaginate)
           (req)
           (loop
              with page-token-param = (cons "pageToken" nil)
