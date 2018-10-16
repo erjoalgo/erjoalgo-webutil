@@ -12,13 +12,6 @@
   key
   token)
 
-(defmacro log-values (form)
-  (let ((vals-sym (gensym "vals")))
-    `(let ((,vals-sym (multiple-value-call #'list
-                        ,form)))
-       (format t "values: ~A~%" ,vals-sym)
-       (values-list ,vals-sym))))
-
 (defun alist-to-http-params (params)
   (loop for (k . v) in params
      as k-string = (typecase k
