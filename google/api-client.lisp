@@ -13,6 +13,8 @@
   token)
 
 (defun alist-to-http-params (params)
+  "Convert an lisp alist of key-value pairs PARAMS
+   into drakma-compatible http-params."
   (loop for (k . v) in params
      as k-string = (typecase k
                      (string k)
