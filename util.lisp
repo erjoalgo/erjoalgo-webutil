@@ -1,3 +1,5 @@
+(in-package #:erjoalgo-webutil)
+
 (defun read-file (filename)
   "Read file contents into a string."
   (with-output-to-string (out)
