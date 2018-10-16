@@ -24,6 +24,9 @@
      collect (cons k-string v) into params
      finally (return params)))
 
+(defvar *api-base-url* nil
+  "default base url used by api-req")
+
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate-p t)
