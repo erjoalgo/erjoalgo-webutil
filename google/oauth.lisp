@@ -1,4 +1,4 @@
-(in-package #:yt-comments/oauth)
+(in-package #:erjoalgo-webutil)
 
 (defstruct oauth-client
   client-id
