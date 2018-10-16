@@ -1,4 +1,4 @@
-(in-package #:erjoalgo-webutil)
+(in-package #:erjoalgo-webutil/google)
 
 (defstruct oauth-client
   client-id

@@ -11,16 +11,17 @@
            #:params
            #:json-path-split
            #:json-get-nested
-           #:json-get-nested-macro))
-
-'(:export #:make-oauth-client-from-file
-  #:OAUTH-TOKEN-AUTH-HEADER
-  #:AUTH-SERVER-REDIRECT-URL
-  #:EXCHANGE-CODE-FOR-TOKEN
-  #:RESP-TOKEN-ACCESS-TOKEN
-  #:RESP-TOKEN-REFRESH-TOKEN)
-
-'(:export #:make-api-login)
+           #:-json-get-nested))
 
 (defpackage #:erjoalgo-webutil/google
-  (:use :cl :cl-markup))
+  (:use :cl #:erjoalgo-webutil)
+  (:export #:make-oauth-client-from-file
+           #:OAUTH-TOKEN-AUTH-HEADER
+           #:AUTH-SERVER-REDIRECT-URL
+           #:EXCHANGE-CODE-FOR-TOKEN
+           #:RESP-TOKEN-ACCESS-TOKEN
+           #:RESP-TOKEN-REFRESH-TOKEN
+           #:make-api-login
+           #:api-req
+           #:defapi-endpoint
+           #:defapi))
