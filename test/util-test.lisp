@@ -37,7 +37,6 @@
 
 
 
-;; There is no class named YT-COMMENTS/UTIL-TEST::MY-UNMARSHAL-TEST-2.
 (defstruct my-unmarshal-test-2
   access-token
   error
