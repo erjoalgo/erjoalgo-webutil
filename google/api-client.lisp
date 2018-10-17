@@ -98,7 +98,7 @@
                                       'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
                               (sleep 1)))))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
-                     (progn (format t "got 403. trying to refresh..." )
+                     (progn (vom:warn "got 403. trying to refresh..." )
                             (req t))
                      (let* ((string (babel:octets-to-string octets :encoding :utf-8))
                             (json (unless (zerop (length string))
@@ -122,7 +122,7 @@
                         ;; this may fail?
                         page (make-from-json-alist body resp-page)
                         error (resp-page-error page)))
-             do (format t "page: ~A/~A params: ~A~%" page-idx
+             do (vom:debug "page: ~A/~A params: ~A~%" page-idx
                         (ceiling total-pages)
                         params)
              when (and (null error)
@@ -146,7 +146,7 @@
              while (and (cdr page-token-param) (not error))
 
              finally (progn
-                       (format t "fetched ~A items~%" (length items))
+                       (vom:debug "fetched ~A items~%" (length items))
                        (return (values items status-code resp-string error))))))))
 
 (defmacro defapi-endpoint (name method api-base-url resource

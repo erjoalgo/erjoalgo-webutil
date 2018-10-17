@@ -18,7 +18,7 @@
         named ,loop-tag-sym
         with ,loop-ex-sym = nil
         for ,i-sym below ,n
-        do (format t "~A ~A~%" ,i-sym ,loop-ex-sym)
+        do (vom:debug "~A ~A~%" ,i-sym ,loop-ex-sym)
         do
           (handler-case
               (progn

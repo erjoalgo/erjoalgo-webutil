@@ -46,7 +46,6 @@
 
     (let ((oauth-client (make-oauth-client-from-file
                          tmp-filename)))
-      (format t "recovered client ~A~%" oauth-client)
       (with-slots (client-secret
                    client-id
                    auth-uri)
