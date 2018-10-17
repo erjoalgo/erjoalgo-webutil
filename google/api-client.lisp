@@ -149,24 +149,23 @@
                        (format t "fetched ~A items~%" (length items))
                        (return (values items status-code resp-string error))))))))
 
-(defmacro defapi-endpoint (name method api-base-url
+(defmacro defapi-endpoint (name method api-base-url resource
                            &rest rest
                            &key default-params
-                             (resource-path (lisp-to-json-key name))
                              &allow-other-keys)
   ;; "Defines a function FUN-SYM that calls an api-endpoint.
   ;;  DEFAULT-PARAMS specifies defaults parameters used in the request
   ;;  unless overridden later by the caller."
-  `(defun ,(intern (format nil "~A-~A" name method)) (login &rest params-flat)
-     ,(format nil "~A ~A/~A ~A" method api-base-url resource-path
+  `(defun ,name (login &rest params-flat)
+     ,(format nil "~A ~A/~A ~A" method api-base-url resource
               (or default-params ""))
-     (api-req login ,resource-path
-              (append (params params-flat) ,default-params)
+     (api-req login ,resource
+              (append (apply 'params params-flat) ,default-params)
               :api-base-url ,api-base-url
               ,@(loop for (k v . etc) on rest by #'cddr
                    unless (member k '(:default-params
                                       :name
-                                      :resource-path
+                                      :resource
                                       :api-base-url))
                    append (list k v)))))
 
@@ -183,7 +182,8 @@
               (:get (:depaginate t) ,get-depaginate)
               (:post ,post)
               (:delete ,delete))
-          append (loop for (name . endpoint-params) in endpoints
+          append (loop for (name resource . endpoint-params) in endpoints
                     collect `(defapi-endpoint ,name ,method
                                ,base-url
+                               ,resource
                                ,@(append endpoint-params kw-args))))))
