@@ -1,5 +1,11 @@
 (in-package #:erjoalgo-webutil)
 
+(export
+ '(retry-times
+   drakma-json-content-type-hack
+   params
+   -params))
+
 (defmacro retry-times (n timeout-secs &body body)
   "Retry form N times, with each retry timed out at TIMEOUT-SECS.
    An error is raised only after all retries have been exhausted."
