@@ -9,7 +9,8 @@
                              ;; :hunchentoot
                              :vom
                              :fiasco)
-                :components ((:file "util")
+                :components ((:file "packages")
+                             (:file "util")
                              (:file "json")
                              (:file "http")
                              (:file "google/api-client")
