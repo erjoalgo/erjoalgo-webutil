@@ -1,5 +1,11 @@
 (in-package #:erjoalgo-webutil/google)
 
+(export
+ '(api-req
+   defapi-endpoint
+   defapi
+   *api-base-url*))
+
 (defstruct resp-page
   items
   page-info
