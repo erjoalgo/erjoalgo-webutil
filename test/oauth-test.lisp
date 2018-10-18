@@ -59,4 +59,43 @@
     (is (eq (drakma:http-request) 'caca))
     '(exchange-code-for-token 1 2)))
 
+'"
+The following snippet shows a sample request:
+
+POST /oauth2/v4/token HTTP/1.1
+Host: www.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https://oauth2.example.com/code&
+grant_type=authorization_code"
+
+
+  '"
+(response)
+{
+\"access_token\":\"1/fFAGRNJru1FTz70BzhT3Zg\",
+\"expires_in\":3920,
+\"token_type\":\"Bearer\",
+\"refresh_token\":\"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI\"
+}
+
+"
+'(progn
+  (let ((client (make-oauth-client-from-file "py/client_secrets.json")))
+    (setf resp (fetch-token client "localhost:4242"))))
+
+"POST /oauth2/v4/token HTTP/1.1
+Host: www.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https://oauth2.example.com/code&
+grant_type=authorization_code
+"
+
 (run-package-tests :interactive t)
