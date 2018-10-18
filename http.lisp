@@ -63,3 +63,24 @@
          (progn ,@body)))
      (push (hunchentoot:create-regex-dispatcher ,uri-regexp ',name)
            hunchentoot:*dispatch-table*)))
+
+(defun json-resp (body &key (return-code 200))
+  "Convert a lisp object into a json response with the appropriate content type
+to be called within a hunchentoot handler. "
+
+  (setf (hunchentoot:return-code*) return-code)
+  (setf (hunchentoot:content-type*) "application/json")
+
+  ;; (cl-json:encode-json body)
+  ;; https://tbnl-devel.common-lisp.narkive.com/CO37ACWN/
+  ;; hunchentoot-devel-how-to-properly-write-directly-to-output-stream
+  (let ((out (flex:make-flexi-stream (hunchentoot:send-headers)
+                                     :external-format
+                                     hunchentoot:*hunchentoot-default-external-format*
+                                     :element-type 'character)))
+    (cl-json:encode-json body out)))
+
+(defun json-req ()
+  (let* ((json-string (hunchentoot:raw-post-data :force-text t))
+         (json (cl-json:decode-json-from-string json-string)))
+    json))
