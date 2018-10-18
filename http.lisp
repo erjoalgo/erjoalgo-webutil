@@ -84,3 +84,20 @@ to be called within a hunchentoot handler. "
   (let* ((json-string (hunchentoot:raw-post-data :force-text t))
          (json (cl-json:decode-json-from-string json-string)))
     json))
+
+(defmacro with-mock ((fname fun) &body body)
+  ;; from https://stackoverflow.com/questions/3074812/
+  "Shadow the function named fname with fun
+   Any call to fname within body will use fun, instead of the default function for fname.
+   This macro is intentionally unhygienic:
+   fun-orig is the anaphor, and can be used in body to access the shadowed function"
+  `(let ((fun-orig))
+     (cond ((fboundp ',fname)
+            (setf fun-orig (symbol-function ',fname))
+            (setf (symbol-function ',fname) ,fun)
+            (unwind-protect (progn ,@body)
+              (setf (symbol-function ',fname) fun-orig)))
+           (t
+            (setf (symbol-function ',fname) ,fun)
+            (unwind-protect (progn ,@body)
+              (fmakunbound ',fname))))))
