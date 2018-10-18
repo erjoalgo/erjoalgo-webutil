@@ -74,7 +74,8 @@
   expires-in
   token-type
   error
-  error-description)
+  error-description
+  scope)
 
 (defun oauth-token-auth-header (resp-token)
   (cons :authorization
