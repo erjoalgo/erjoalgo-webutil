@@ -17,7 +17,8 @@
   token-uri
   scopes
   auth-uri
-  redirect-uris)
+  redirect-uris
+  AUTH-PROVIDER-X-509-CERT-URL)
 
 (defun make-oauth-client-from-file (filename)
   (let* ((top-json
