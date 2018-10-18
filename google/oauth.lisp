@@ -109,3 +109,62 @@
      (make-from-json-alist resp-token))))
 
 
+(defun create-hunchentoot-oauth-redirect-dispatcher
+    (oauth-client scopes-to-request
+     &key (oauth-authorize-uri-path "/oauth/authorize")
+       (scheme "https")
+       (login-session-key :login)
+       (original-url-session-key 'original-url))
+  "Hunchentoot oauth middleware dispatcher:
+   If auth is missing, redirect to remote authorization server.
+   Otherwise, if the path matches OAUTH-AUTHORIZE-URI-PATH,
+   exchange code for token and associate token with session.
+   Otherwise, allow other dispatchers to handle the request."
+  ;; the dispatcher returns a closure which is invoked with the request object
+  ;; and returns a handler iff it can handle the request
+  (lambda (request)
+    (labels ((authenticated? ()
+               (and hunchentoot:*session*
+                    (hunchentoot:session-value login-session-key))))
+      (unless (authenticated?)
+        (cond
+          ((equal oauth-authorize-uri-path (hunchentoot:script-name request))
+           (lambda ()
+             ;; back from the authorization server... exchange code for token
+             (assert hunchentoot:*session*)
+             (assert (hunchentoot:session-value original-url-session-key))
+             (let* ((original-url
+                     (or (hunchentoot:session-value original-url-session-key) "/"))
+                    (code (-> (hunchentoot:get-parameters request)
+                              (assoq "code")))
+                    (resp-token (exchange-code-for-token code oauth-client)))
+               (if (resp-token-access-token resp-token)
+                   (progn
+                     (setf (hunchentoot:session-value login-session-key)
+                           (make-api-login
+                            :key nil
+                            :token resp-token))
+                     (hunchentoot:redirect original-url))
+                   (progn (setf (hunchentoot:return-code*)
+                                hunchentoot:+http-authorization-required+)
+                          ;; TODO return json
+                          (format nil "token request rejected: ~A~%" resp-token))))))
+          (t
+           (assert (not (authenticated?)))
+           (lambda ()
+             ;; missing login, redirect to remote auth server
+             (unless hunchentoot:*session*
+               (hunchentoot:start-session))
+             (setf (hunchentoot:session-value original-url-session-key)
+                   (hunchentoot:request-uri request))
+             (let* ((local-auth-url
+                     (format nil "~A://~A~A"
+                             ;; (hunchentoot:server-protocol request)
+                             scheme
+                             (hunchentoot:host)
+                             oauth-authorize-uri-path))
+                    (remote-auth-url (auth-server-redirect-url
+                                      oauth-client
+                                      local-auth-url
+                                      scopes-to-request)))
+               (hunchentoot:redirect remote-auth-url)))))))))
