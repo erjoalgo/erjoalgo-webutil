@@ -45,7 +45,7 @@
           (cl-json:decode-json-from-source))))
 
 (defvar resp)
-(defun auth-server-redirect-url (oauth-client redirect-uri)
+(defun auth-server-redirect-url (oauth-client local-redirect-uri scopes-to-request)
   "Example
    https://accounts.google.com/o/oauth2/v2/auth?
     scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
@@ -61,11 +61,10 @@
             auth-uri
             ;; "http://localhost:1234/"
             (-> (params
-                 "scope" (format nil "~{~A~^ ~}"
-                                 youtube-scopes)
+                 "scope" (format nil "~{~A~^ ~}" scopes-to-request)
                  "access_type" "online"
                  "include_granted_scopes" "false"
-                 "redirect_uri" redirect-uri
+                 "redirect_uri" local-redirect-uri
                  "response_type" "code"
                  "client_id" client-id)
                 (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
