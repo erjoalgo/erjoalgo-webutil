@@ -85,48 +85,26 @@
 
 (defun exchange-code-for-token (code oauth-client)
   "code	The authorization code returned from the initial request.
-client_id	The client ID obtained from the API Console.
-client_secret	The client secret obtained from the API Console.
-redirect_uri	One of the redirect URIs listed for your project in the API Console.
-grant_type	As defined in the OAuth 2.0 specification, this field must contain a value of authorization_code.
-"
-  '"
-The following snippet shows a sample request:
+   client_id	The client ID obtained from the API Console.
+   client_secret	The client secret obtained from the API Console.
+   redirect_uri	One of the redirect URIs listed for your project in the API Console.
+   grant_type	As defined in the OAuth 2.0 specification,
+   this field must contain a value of authorization_code."
 
-POST /oauth2/v4/token HTTP/1.1
-Host: www.googleapis.com
-Content-Type: application/x-www-form-urlencoded
+  (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
+    (->
+     (drakma:http-request
+      token-uri
+      ;; "http://localhost:1234"
+      :method :post
+      :parameters (params
+                   "code" code
+                   "grant_type" "authorization_code"
+                   "client_secret" client-secret
+                   "redirect_uri" (car redirect-uris)
+                   "client_id" client-id)
+      :want-stream t)
+     cl-json:decode-json-from-source
+     (make-from-json-alist resp-token))))
 
-code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
-client_id=your_client_id&
-client_secret=your_client_secret&
-redirect_uri=https://oauth2.example.com/code&
-grant_type=authorization_code"
 
-
-  '"
-(response)
-{
-\"access_token\":\"1/fFAGRNJru1FTz70BzhT3Zg\",
-\"expires_in\":3920,
-\"token_type\":\"Bearer\",
-\"refresh_token\":\"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI\"
-}
-
-"
-
-(with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
-  (->
-   (drakma:http-request
-    token-uri
-    ;; "http://localhost:1234"
-    :method :post
-    :parameters (params
-                 "code" code
-                 "grant_type" "authorization_code"
-                 "client_secret" client-secret
-                 "redirect_uri" (car redirect-uris)
-                 "client_id" client-id)
-    :want-stream t)
-   cl-json:decode-json-from-source
-   (make-from-json-alist resp-token))))
