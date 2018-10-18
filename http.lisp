@@ -48,3 +48,18 @@
 (defmacro -params (&rest flat)
   "Convert a flat list of key-value pairs into an alist."
   (params flat))
+
+(defmacro define-regexp-route (name (uri-regexp &rest capture-names) docstring &body body)
+  ;; taken from IRC
+  "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
+   An optional list `capture-names' may be provided to capture path variables.
+   The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
+
+  `(progn
+     (defun ,name ()
+       ,docstring
+       (ppcre:register-groups-bind ,capture-names
+           (,uri-regexp (hunchentoot:script-name*))
+         (progn ,@body)))
+     (push (hunchentoot:create-regex-dispatcher ,uri-regexp ',name)
+           hunchentoot:*dispatch-table*)))
