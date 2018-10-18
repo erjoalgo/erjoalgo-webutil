@@ -6,7 +6,7 @@
                 :depends-on (:cl-json
                              :drakma
                              ;; :cl-ppcre
-                             ;; :hunchentoot
+                             :hunchentoot
                              :vom
                              :fiasco)
                 :components ((:file "packages")
