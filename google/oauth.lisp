@@ -44,7 +44,6 @@
                            :WANT-STREAM t)
           (cl-json:decode-json-from-source))))
 
-(defvar resp)
 (defun auth-server-redirect-url (oauth-client local-redirect-uri scopes-to-request)
   "Example
    https://accounts.google.com/o/oauth2/v2/auth?
