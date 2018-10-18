@@ -91,6 +91,7 @@
    grant_type	As defined in the OAuth 2.0 specification,
    this field must contain a value of authorization_code."
 
+  (assert code)
   (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
     (->
      (drakma:http-request
