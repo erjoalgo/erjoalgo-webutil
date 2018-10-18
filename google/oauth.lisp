@@ -45,39 +45,17 @@
           (cl-json:decode-json-from-source))))
 
 (defvar resp)
-
-'(progn
-  (let ((client (make-oauth-client-from-file "py/client_secrets.json")))
-    (setf resp (fetch-token client "localhost:4242"))))
-
-"POST /oauth2/v4/token HTTP/1.1
-Host: www.googleapis.com
-Content-Type: application/x-www-form-urlencoded
-
-code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
-client_id=your_client_id&
-client_secret=your_client_secret&
-redirect_uri=https://oauth2.example.com/code&
-grant_type=authorization_code
-"
-
-(defvar auth-server-redirect-base-url
-  "https://accounts.google.com/o/oauth2/v2/auth")
-
-(defparameter youtube-scopes
-'("https://www.googleapis.com/auth/youtube.force-ssl"))
-
 (defun auth-server-redirect-url (oauth-client redirect-uri)
-  "example
-https://accounts.google.com/o/oauth2/v2/auth?
- scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
- access-type=offline&
- include-granted-scopes=true&
- state=state-parameter-passthrough-value&
- redirect-uri=http%3A%2F%2Foauth2.example.com%2Fcallback&
- response-type=code&
- client-id=client-id
-"
+  "Example
+   https://accounts.google.com/o/oauth2/v2/auth?
+    scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
+    access-type=offline&
+    include-granted-scopes=true&
+    state=state-parameter-passthrough-value&
+    redirect-uri=http%3A%2F%2Foauth2.example.com%2Fcallback&
+    response-type=code&
+    client-id=client-id"
+
   (with-slots (scopes client-id auth-uri) oauth-client
     (format nil "~A?~A"
             auth-uri
