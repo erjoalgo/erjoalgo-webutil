@@ -7,7 +7,8 @@
    EXCHANGE-CODE-FOR-TOKEN
    RESP-TOKEN-ACCESS-TOKEN
    RESP-TOKEN-REFRESH-TOKEN
-   make-api-login))
+   make-api-login
+   DEFINE-REGEXP-ROUTE))
 
 (defstruct oauth-client
   client-id
