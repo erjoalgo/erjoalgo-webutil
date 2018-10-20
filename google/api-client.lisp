@@ -40,7 +40,7 @@
    Retry RETRY-COUNT times with a delay of RETRY-DELAY seconds
    after eeach retry in case of network errors.
 
-   Returns values (DECODED-JSON HTTP-RESP-CODE RESP-STRING)
+   Returns values (DECODED-JSON RESP-CODE RESP-STRING)
 
    - DECODED-JSON is a json object decoded via cl-json
    - HTTP-RESP-CODE is the http response code as a number
