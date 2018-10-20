@@ -76,7 +76,7 @@
               additional-headers))
 
     (labels ((req (&optional already-refreshed-p)
-               (multiple-value-bind (octets http-code)
+               (multiple-value-bind (content http-code)
                    (retry-times retry-count retry-delay
                      (loop
                           named annoying-NS-TRY-AGAIN-CONDITION-retry
@@ -95,10 +95,12 @@
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (progn (vom:warn "got 403. trying to refresh..." )
                             (req t))
-                     (let* ((string (babel:octets-to-string octets :encoding :utf-8))
-                            (json (unless (zerop (length string))
-                                    (cl-json:decode-json-from-string string))))
-                       (values json http-code string))))))
+                     (if (stringp content)
+                         (values content http-code content)
+                         (let* ((string (babel:octets-to-string content :encoding :utf-8))
+                                (json (unless (zerop (length string))
+                                        (cl-json:decode-json-from-string string))))
+                                (values json http-code string)))))))
       (if (not depaginate)
           (req)
           (loop
