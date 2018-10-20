@@ -18,19 +18,22 @@
          (client (make-from-json-alist client-json oauth-client)))
     (assert top-json)
     (assert client-json)
-    (assert (with-slots (client-id client-secret) client
-              (and client-id client-secret)))
+    (with-slots (client-id client-secret) client
+      (assert client-id)
+      (unless client-secret
+        (warn "missing client secret")))
     client))
 
 (defun fetch-token (oauth-client redirect-uri)
   (with-slots (client-id client-secret token-uri) oauth-client
       (-> (drakma:http-request token-uri :parameters
-                           (params
-                            "client_id" client-id
-                            "client_secret" client-secret
-                            "redirect_uri" redirect-uri
-                            "grant_type" "authorization_code"
-                            )
+                               (append
+                                (params
+                                 "client_id" client-id
+                                 "redirect_uri" redirect-uri
+                                 "grant_type" "authorization_code")
+                                (when client-secret
+                                  `(("client_secret" ,client-secret))))
                            :WANT-STREAM t)
           (cl-json:decode-json-from-source))))
 
