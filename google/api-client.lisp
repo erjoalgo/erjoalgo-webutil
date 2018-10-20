@@ -71,7 +71,7 @@
                   (if (api-login-key login) 1 0))))
 
     (if (api-login-key login)
-        (push (cons :key (api-login-key login)) params)
+        (push (cons "key" (api-login-key login)) params)
         (push (oauth-token-auth-header (api-login-token login))
               additional-headers))
 
