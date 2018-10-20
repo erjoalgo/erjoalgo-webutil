@@ -80,6 +80,19 @@ to be called within a hunchentoot handler. "
          (json (cl-json:decode-json-from-string json-string)))
     json))
 
+(defmacro check-nonnil (form)
+  ;; TODO multiple values
+  "Asserts a form is non-nil."
+  (let ((val-sym (gensym "val")))
+    `(let ((,val-sym ,form))
+       (assert ,val-sym nil "assertion ~A failed" ',form)
+       ,val-sym)))
+
+(defun first-file-with-extension (directory ext)
+  "Locate the first file in DIRECTORY matching the extension EXT."
+  (loop for path in (uiop:directory-files directory)
+     thereis (and (equal ext (pathname-type path)) path)))
+
 (defmacro with-mock ((fname fun) &body body)
   ;; from https://stackoverflow.com/questions/3074812/
   "Shadow the function named fname with fun
