@@ -75,6 +75,7 @@ to be called within a hunchentoot handler. "
     (cl-json:encode-json body out)))
 
 (defun json-req ()
+  "Obtain the current request payload as a decoded json object."
   (let* ((json-string (hunchentoot:raw-post-data :force-text t))
          (json (cl-json:decode-json-from-string json-string)))
     json))
