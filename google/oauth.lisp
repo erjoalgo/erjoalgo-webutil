@@ -148,7 +148,13 @@
                    (progn (setf (hunchentoot:return-code*)
                                 hunchentoot:+http-authorization-required+)
                           ;; TODO return json
-                          (format nil "token request rejected: ~A~%" resp-token))))))
+                          (vom:info "token request rejected: ~A~%" resp-token)
+                          (erjoalgo-webutil:json-resp
+                           `((:error . "token request rejected")
+                             ;; cl-json complains:
+                             ;; (my-clos-object) is not of a type which can be encoded by ENCODE-JSON...
+                             ;; use another json library
+                             (:details .  ,(prin1-to-string resp-token)))))))))
           (t
            (assert (not (authenticated?)))
            (lambda ()
