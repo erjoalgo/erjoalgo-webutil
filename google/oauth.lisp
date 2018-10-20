@@ -107,7 +107,8 @@
      &key (oauth-authorize-uri-path "/oauth/authorize")
        (scheme "https")
        (login-session-key :login)
-       (original-url-session-key 'original-url))
+       (original-url-session-key 'original-url)
+       on-authenticated-fn)
   "Hunchentoot oauth middleware dispatcher:
    If auth is missing, redirect to remote authorization server.
    Otherwise, if the path matches OAUTH-AUTHORIZE-URI-PATH,
@@ -137,6 +138,9 @@
                            (make-api-login
                             :key nil
                             :token resp-token))
+                     (when on-authenticated-fn
+                       (funcall on-authenticated-fn
+                                (hunchentoot:session-value login-session-key)))
                      (hunchentoot:redirect original-url))
                    (progn (setf (hunchentoot:return-code*)
                                 hunchentoot:+http-authorization-required+)
