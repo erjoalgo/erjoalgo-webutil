@@ -120,9 +120,12 @@
     (labels ((authenticated? ()
                (and hunchentoot:*session*
                     (hunchentoot:session-value login-session-key))))
+      (vom:debug "oauth: value of (authenticated?): ~A~%" (authenticated?))
       (unless (authenticated?)
         (cond
           ((equal oauth-authorize-uri-path (hunchentoot:script-name request))
+           (vom:debug "back from auth server with params: ~A~%"
+                      (hunchentoot:get-parameters request))
            (lambda ()
              ;; back from the authorization server... exchange code for token
              (assert hunchentoot:*session*)
@@ -164,4 +167,8 @@
                                       oauth-client
                                       local-auth-url
                                       scopes-to-request)))
+               (vom:debug "redirecting to remote oauth: ~A~%"
+                          remote-auth-url)
+               (vom:debug "local redirect url: ~A~%"
+                          local-auth-url)
                (hunchentoot:redirect remote-auth-url)))))))))
