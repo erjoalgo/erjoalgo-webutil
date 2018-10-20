@@ -1,16 +1,5 @@
 (in-package #:erjoalgo-webutil/google)
 
-(export
- '(MAKE-OAUTH-CLIENT-FROM-FILE
-   OAUTH-TOKEN-AUTH-HEADER
-   AUTH-SERVER-REDIRECT-URL
-   EXCHANGE-CODE-FOR-TOKEN
-   RESP-TOKEN-ACCESS-TOKEN
-   RESP-TOKEN-REFRESH-TOKEN
-   make-api-login
-   CREATE-HUNCHENTOOT-OAUTH-REDIRECT-DISPATCHER
-   DEFINE-REGEXP-ROUTE))
-
 (defstruct oauth-client
   client-id
   client-secret
