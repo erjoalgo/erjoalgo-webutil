@@ -21,8 +21,8 @@
                   (progn ,@body)))
             (error (,ex-sym)
               (setf ,loop-ex-sym ,ex-sym)
-              (format nil "failed with ~A retrying ~D/~D... ~%"
-                      ,ex-sym (1+ ,i-sym) ,n)
+              (vom:debug "~A failed with ~A retrying ~D / ~D... ~%"
+                         ',body ,ex-sym (1+ ,i-sym) ,n)
               (sleep ,timeout-secs)))
         while ,loop-ex-sym
         finally (error ,loop-ex-sym))))
