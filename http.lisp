@@ -114,6 +114,39 @@ to be called within a hunchentoot handler. "
   (loop for path in (uiop:directory-files directory)
      thereis (and (equal ext (pathname-type path)) path)))
 
+(defun hunchentoot-make-add-fake-session (data user-agent
+                                          &key
+                                            (real-remote-addr "127.0.0.1"))
+  "Create a 'fake' hunchentoot session with mock data DATA as HUNCHENTOOT::SESSION-DATA.
+   Returns (VALUES SESSION COOKIE).
+
+   The resulting SESSION will be actived for a given request if:
+     - request user-agent is USER-AGENT
+     - request real-remote-addr (IP address?) is REAL-REMOTE-ADDR
+     - the request contains a header with the name 'cookie' and value COOKIE"
+
+  (let* ((hunchentoot:*acceptor* nil)
+         (hunchentoot:*request*
+          (make-instance 'hunchentoot:request
+                         :uri ""
+                         :headers-in `((:user-agent ,user-agent))
+                         :acceptor nil
+                         :remote-addr real-remote-addr))
+         (sess (make-instance 'HUNCHENTOOT:SESSION))
+         (id (slot-value sess 'HUNCHENTOOT::SESSION-ID)))
+
+    (setf (slot-value sess 'HUNCHENTOOT::SESSION-DATA) data)
+    (push (cons id sess) hunchentoot::*session-db*)
+    (let* ((string
+            (HUNCHENTOOT::encode-session-string (slot-value sess 'HUNCHENTOOT::SESSION-ID)
+                                                user-agent
+                                                real-remote-addr
+                                                (HUNCHENTOOT::session-start sess)))
+           (cookie (format nil "hunchentoot-session=~D:~A" id string)))
+      ;; (format t "service-test: value of string: ~A~%" string)
+      (setf (slot-value sess 'HUNCHENTOOT::session-string) string)
+      (values sess cookie))))
+
 (defmacro with-mock ((fname fun) &body body)
   ;; from https://stackoverflow.com/questions/3074812/
   "Shadow the function named fname with fun
