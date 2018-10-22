@@ -43,20 +43,41 @@
   "Convert a flat list of key-value pairs into an alist."
   (params flat))
 
-(defmacro define-regexp-route (name (uri-regexp &rest capture-names) docstring &body body)
+(defmacro define-regexp-route (name (uri-regexp &rest capture-names)
+                                                  docstring
+                                                  ;; condition
+                               &body body)
   ;; taken from IRC
   "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
    An optional list `capture-names' may be provided to capture path variables.
    The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
 
-  `(progn
-     (defun ,name ()
-       ,docstring
-       (ppcre:register-groups-bind ,capture-names
-           (,uri-regexp (hunchentoot:script-name*))
-         (progn ,@body)))
-     (push (hunchentoot:create-regex-dispatcher ,uri-regexp ',name)
-           hunchentoot:*dispatch-table*)))
+  (let ((dispatcher-name (intern
+                          (format nil "HUNCHENTOOT-DISPATCHER-~A" (symbol-name name))))
+        (scanner-sym (gensym "SCANNER-"))
+        (request-sym (gensym "REQUEST-")))
+    ;; (declare (ignore scanner))
+    `(progn
+       (defvar ,scanner-sym
+         (ppcre:create-scanner ,uri-regexp))
+       (defun ,name ()
+         ,docstring
+         (log-request ,(format nil "matching ~A"
+                               dispatcher-name))
+         (ppcre:register-groups-bind ,capture-names
+             (,uri-regexp (hunchentoot:script-name*))
+           (log-request ,(format nil "matched ~A"
+                                 dispatcher-name))
+           ,@body))
+       (defun ,dispatcher-name (,request-sym)
+         (log-request ,(format nil "on dispatcher ~A" dispatcher-name))
+         (when (and ;;,condition
+                (ppcre:scan ,scanner-sym (hunchentoot:script-name ,request-sym)))
+           ;; (ppcre:scan (ppcre:create-scanner ,uri-regexp) (hunchentoot:script-name ,request-sym)))
+           (log-request ,(format nil "on handler ~A" name))
+           ',name))
+       (push ',dispatcher-name
+             hunchentoot:*dispatch-table*))))
 
 (defun json-resp (body &key (return-code 200))
   "Convert a lisp object into a json response with the appropriate content type
