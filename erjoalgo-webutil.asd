@@ -5,7 +5,7 @@
                 :author "Ernesto Alfonso <erjoalgo@gmail.com>"
                 :depends-on (:cl-json
                              :drakma
-                             ;; :cl-ppcre
+                             :cl-ppcre
                              :hunchentoot
                              :vom
                              :fiasco)
