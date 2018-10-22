@@ -77,21 +77,25 @@
 
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (content http-code)
-                   (retry-times retry-count retry-delay
-                     (loop
-                          named annoying-NS-TRY-AGAIN-CONDITION-retry
-                        for i from 0 do
-                          (handler-case
-                              (return-from annoying-NS-TRY-AGAIN-CONDITION-retry
-                                (drakma:http-request url
-                                                     :method method
-                                                     :parameters params
-                                                     :additional-headers additional-headers))
-                            (USOCKET:NS-TRY-AGAIN-CONDITION
-                                (ex)
-                              (format nil "failed with ~A: ~A retrying ~D... ~%"
-                                      'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
-                              (sleep 1)))))
+                   (loop
+                      named annoying-NS-TRY-AGAIN-CONDITION-retry
+                      with _ex = nil
+                      for i below RETRY-COUNT do
+                        (handler-case
+                            (return-from annoying-NS-TRY-AGAIN-CONDITION-retry
+                              (drakma:http-request url
+                                                   :method method
+                                                   :parameters params
+                                                   :additional-headers additional-headers))
+                          (USOCKET:NS-TRY-AGAIN-CONDITION
+                              (ex)
+                            (setf  _ex ex)
+                            (vom:debug "~A failed with ~A: ~A retrying ~D... ~%"
+                                       (format nil "~{~A~^ ~}"
+                                               (list url method params))
+                                       'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
+                            (sleep retry-delay)))
+                      finally (signal _ex))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (progn (vom:warn "got 403. trying to refresh..." )
                             (req t))
