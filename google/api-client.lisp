@@ -104,7 +104,7 @@
                          (let* ((string (babel:octets-to-string content :encoding :utf-8))
                                 (json (unless (zerop (length string))
                                         (cl-json:decode-json-from-string string))))
-                                (values json http-code string)))))))
+                           (values json http-code string)))))))
       (if (not depaginate)
           (req)
           (loop
@@ -124,10 +124,10 @@
                         page (make-from-json-alist body resp-page)
                         error (resp-page-error page)))
              do (vom:debug "page: ~A/~A params: ~A~%" page-idx
-                        (ceiling total-pages)
-                        params)
+                           (ceiling total-pages)
+                           params)
              when (and (null error)
-                        ;2xx
+                                        ;2xx
                        (eq 2 (floor status-code 100)))
              do
                (progn
