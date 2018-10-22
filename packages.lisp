@@ -26,6 +26,7 @@
    #:-params
    #:first-file-with-extension
    #:check-nonnil
+   #:make-directories-recursively
    #:log-request))
 
 (defpackage #:erjoalgo-webutil/google

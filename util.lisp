@@ -31,3 +31,11 @@
                 (list a))
               ,@rest))
       (car forms)))
+
+(defun make-directories-recursively (dir &key (mode #o755))
+  (unless (probe-file dir)
+    (make-directories-recursively
+     (uiop:pathname-parent-directory-pathname
+      (uiop:ensure-directory-pathname dir))
+     :mode mode)
+    (sb-posix:mkdir dir mode)))
