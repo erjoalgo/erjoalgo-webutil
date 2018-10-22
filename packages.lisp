@@ -25,7 +25,8 @@
    #:params
    #:-params
    #:first-file-with-extension
-   #:check-nonnil))
+   #:check-nonnil
+   #:log-request))
 
 (defpackage #:erjoalgo-webutil/google
   (:use :cl :erjoalgo-webutil)

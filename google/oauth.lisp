@@ -117,6 +117,7 @@
   ;; the dispatcher returns a closure which is invoked with the request object
   ;; and returns a handler iff it can handle the request
   (lambda (request)
+    (log-request "oauth-middleware")
     (labels ((authenticated? ()
                (and hunchentoot:*session*
                     (hunchentoot:session-value login-session-key))))

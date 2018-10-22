@@ -163,3 +163,18 @@ to be called within a hunchentoot handler. "
             (setf (symbol-function ',fname) ,fun)
             (unwind-protect (progn ,@body)
               (fmakunbound ',fname))))))
+
+(defun log-request (context-string &key
+                                     (log-fn 'vom:debug)
+                                     (request hunchentoot:*request*))
+  ;; TODO parameterize log
+  (declare (ignore log-fn))
+  (vom:debug "~A: ~A ~A~A ~A (~A)"
+           context-string
+
+           (hunchentoot:request-method request)
+           (hunchentoot:host request)
+           (hunchentoot:script-name request)
+           (hunchentoot:get-parameters request)
+
+           hunchentoot:*session*))
