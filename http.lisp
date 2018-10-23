@@ -43,41 +43,57 @@
   "Convert a flat list of key-value pairs into an alist."
   (params flat))
 
-(defmacro define-regexp-route (name (uri-regexp &rest capture-names)
-                                                  docstring
-                                                  ;; condition
-                               &body body)
-  ;; taken from IRC
-  "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
-   An optional list `capture-names' may be provided to capture path variables.
-   The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
+(defmacro defroutes-regexp (var &rest routes)
+  ;; "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
+  ;;  An optional list `capture-names' may be provided to capture path variables.
+  ;;  The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
 
-  (let ((dispatcher-name (intern
-                          (format nil "HUNCHENTOOT-DISPATCHER-~A" (symbol-name name))))
-        (scanner-sym (gensym "SCANNER-"))
-        (request-sym (gensym "REQUEST-")))
-    ;; (declare (ignore scanner))
-    `(progn
-       (defvar ,scanner-sym
-         (ppcre:create-scanner ,uri-regexp))
-       (defun ,name ()
-         ,docstring
-         (log-request ,(format nil "matching ~A"
-                               dispatcher-name))
-         (ppcre:register-groups-bind ,capture-names
-             (,uri-regexp (hunchentoot:script-name*))
-           (log-request ,(format nil "matched ~A"
-                                 dispatcher-name))
-           ,@body))
-       (defun ,dispatcher-name (,request-sym)
-         (log-request ,(format nil "on dispatcher ~A" dispatcher-name))
-         (when (and ;;,condition
-                (ppcre:scan ,scanner-sym (hunchentoot:script-name ,request-sym)))
-           ;; (ppcre:scan (ppcre:create-scanner ,uri-regexp) (hunchentoot:script-name ,request-sym)))
-           (log-request ,(format nil "on handler ~A" name))
-           ',name))
-       (push ',dispatcher-name
-             hunchentoot:*dispatch-table*))))
+  `(progn
+     (defparameter ,var nil)
+     ,@(loop for ((allowed-methods uri-regexp . capture-names) . body) in routes
+          as sanitized =
+            (string-upcase (cl-ppcre:regex-replace-all "[^a-zA-Z0-9]" uri-regexp "-"))
+          as scanner-sym = (gensym (format nil "SCANNER-~A-" sanitized))
+          as dispatcher-sym = (gensym (format nil "DISPATCHER-~A-" sanitized))
+          as handler-sym = (gensym (format nil "HANDLER-~A-" sanitized))
+          as request-sym = (gensym "REQUEST-")
+          as lambda-list = (loop for arg in capture-names
+                              collect (if (consp arg)
+                                                 ;; ppcre:register-groups-bind allows a
+                                                 ;; (fn sym) form here
+                                                 (cadr arg)
+                                                 arg))
+
+          append
+            `((defvar ,scanner-sym
+                (ppcre:create-scanner ,uri-regexp))
+
+              (defun ,handler-sym ,lambda-list
+                (log-request ,(format nil "matched ~A" dispatcher-sym))
+                ,@body)
+              (defun ,dispatcher-sym (,request-sym)
+                (log-request ,(format nil "matching ~A" dispatcher-sym))
+                (when ,(if (eq t allowed-methods) t
+                           `(member (hunchentoot:request-method ,request-sym)
+                                    ',allowed-methods))
+                  (ppcre:register-groups-bind ,capture-names
+                      (,scanner-sym (hunchentoot:script-name*))
+                    (log-request ,(format nil "matched ~A" dispatcher-sym))
+                    (,handler-sym ,@lambda-list))))
+              (push ',dispatcher-sym ,var)))))
+
+;; e.g.
+; TODO add to macro doc
+'(defroutes-regexp test-routes
+    (((:get) "/health") "OK")
+
+  (((:get) "/privacy") "OKK")
+
+  ((t "anymethod") "OKK")
+
+  (((:get) "/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
+   (format nil "next id is ~D" (1+ unique-id))))
+
 
 (defun json-resp (body &key (return-code 200))
   "Convert a lisp object into a json response with the appropriate content type
