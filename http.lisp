@@ -43,10 +43,25 @@
   "Convert a flat list of key-value pairs into an alist."
   (params flat))
 
-(defmacro defroutes-regexp (var &rest routes)
-  ;; "Define a hunchentoot handler `name' for paths matching `uri-regexp'.
-  ;;  An optional list `capture-names' may be provided to capture path variables.
-  ;;  The capturing behavior is based on wrapping `ppcre:register-groups-bind'"
+(defmacro defroutes (var &rest routes)
+  "Define a hunchentoot dispatch table VAR of routes that match a regexp and a set of http verbs.
+   Each route has the form (ALLOWED-METHODS URI-REGEXP . CAPTURE-NAMES):
+
+   ALLOWED-METHODS may be a list of http verbs as in (:GET :POST), or the special value t
+   which matches any verb.
+
+   URI-REGEXP and CAPTURE-NAMES are used to match against the request path
+   and capture path variables. They correspond to REGEX and VAR-LIST
+   PPCRE:REGISTER-GROUPS-BIND.
+
+   For example,
+    - URI-REGEXP \"/user/([0-9]+)/product/([0-9]+)\"
+    - CAPTURE-NAMES (user-id product-id)
+    could capture these path variables.
+
+   - CAPTURE-NAMES could also have the form
+     ((#'PARSE-INTEGER UNIQUE-ID) (#'PARSE-INTEGER PRODUCT-ID))
+    as supported by PPCRE:REGISTER-GROUPS-BIND."
 
   `(progn
      (defparameter ,var nil)
