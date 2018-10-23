@@ -77,7 +77,7 @@
                            `(member (hunchentoot:request-method ,request-sym)
                                     ',allowed-methods))
                   (ppcre:register-groups-bind ,capture-names
-                      (,scanner-sym (hunchentoot:script-name*))
+                      (,scanner-sym (hunchentoot:script-name ,request-sym))
                     (log-request ,(format nil "matched ~A" dispatcher-sym))
                     (,handler-sym ,@lambda-list))))
               (push ',dispatcher-sym ,var)))))
