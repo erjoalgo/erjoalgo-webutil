@@ -82,19 +82,20 @@
           append
             `((defvar ,scanner-sym
                 (ppcre:create-scanner ,uri-regexp))
-
-              (defun ,handler-sym ,lambda-list
-                (log-request ,(format nil "matched ~A" dispatcher-sym))
-                ,@body)
+              (defun ,handler-sym ()
+                (ppcre:register-groups-bind ,capture-names
+                    (,scanner-sym (hunchentoot:script-name*))
+                  ;; (declare (special ,@lambda-list))
+                  (log-request ,(format nil "matched ~A" dispatcher-sym))
+                  ,@body))
               (defun ,dispatcher-sym (,request-sym)
                 (log-request ,(format nil "matching ~A" dispatcher-sym))
-                (when ,(if (eq t allowed-methods) t
-                           `(member (hunchentoot:request-method ,request-sym)
-                                    ',allowed-methods))
-                  (ppcre:register-groups-bind ,capture-names
-                      (,scanner-sym (hunchentoot:script-name ,request-sym))
-                    (log-request ,(format nil "matched ~A" dispatcher-sym))
-                    (,handler-sym ,@lambda-list))))
+                (when (and ,@(unless (eq t allowed-methods)
+                               `((member (hunchentoot:request-method ,request-sym)
+                                         ',allowed-methods)))
+                           (ppcre:scan ,scanner-sym
+                                        (hunchentoot:script-name ,request-sym)))
+                  ',handler-sym))
               (push ',dispatcher-sym ,var)))))
 
 (defroutes test-routes
