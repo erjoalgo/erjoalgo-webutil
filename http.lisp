@@ -141,10 +141,9 @@ to be called within a hunchentoot handler. "
             (HUNCHENTOOT::encode-session-string id
                                                 user-agent
                                                 real-remote-addr
-                                                (HUNCHENTOOT::session-start sess)))
-           (cookie (format nil "hunchentoot-session=~D:~A" id string)))
+                                                (HUNCHENTOOT::session-start sess))))
       (setf (slot-value sess 'HUNCHENTOOT::session-string) string)
-      (values sess cookie))))
+      (values sess (HUNCHENTOOT:session-cookie-value sess)))))
 
 (defmacro with-mock ((fname fun) &body body)
   ;; from https://stackoverflow.com/questions/3074812/
