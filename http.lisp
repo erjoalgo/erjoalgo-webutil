@@ -82,17 +82,17 @@
                     (,handler-sym ,@lambda-list))))
               (push ',dispatcher-sym ,var)))))
 
-;; e.g.
-; TODO add to macro doc
-'(defroutes-regexp test-routes
+(defroutes test-routes
     (((:get) "/health") "OK")
 
-  (((:get) "/privacy") "OKK")
+  (((:get) "/privacy") "privacy policy")
 
-  ((t "anymethod") "OKK")
+  ((t "/echo") (format nil "the method used was ~A"
+                       (hunchentoot:request-method
+                        hunchentoot:*request*)))
 
-  (((:get) "/feed-history/results/([0-9]+)$" (#'parse-integer unique-id))
-   (format nil "next id is ~D" (1+ unique-id))))
+  (((:get) "/user/([0-9]+)" (#'parse-integer user-id))
+   (format nil "one plus this user id is ~D" (1+ user-id))))
 
 
 (defun json-resp (body &key (return-code 200))
