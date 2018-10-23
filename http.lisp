@@ -184,11 +184,11 @@ to be called within a hunchentoot handler. "
   ;; TODO parameterize log
   (declare (ignore log-fn))
   (vom:debug "~A: ~A ~A~A ~A (~A)"
-           context-string
+             context-string
 
-           (hunchentoot:request-method request)
-           (hunchentoot:host request)
-           (hunchentoot:script-name request)
-           (hunchentoot:get-parameters request)
+             (hunchentoot:request-method request)
+             (hunchentoot:host request)
+             (hunchentoot:script-name request)
+             (hunchentoot:get-parameters request)
 
-           hunchentoot:*session*))
+             hunchentoot:*session*))
