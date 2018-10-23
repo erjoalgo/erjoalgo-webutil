@@ -138,7 +138,7 @@ to be called within a hunchentoot handler. "
     (setf (slot-value sess 'HUNCHENTOOT::SESSION-DATA) data)
     (push (cons id sess) hunchentoot::*session-db*)
     (let* ((string
-            (HUNCHENTOOT::encode-session-string (slot-value sess 'HUNCHENTOOT::SESSION-ID)
+            (HUNCHENTOOT::encode-session-string id
                                                 user-agent
                                                 real-remote-addr
                                                 (HUNCHENTOOT::session-start sess)))
