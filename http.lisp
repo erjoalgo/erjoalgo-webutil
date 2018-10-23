@@ -143,7 +143,6 @@ to be called within a hunchentoot handler. "
                                                 real-remote-addr
                                                 (HUNCHENTOOT::session-start sess)))
            (cookie (format nil "hunchentoot-session=~D:~A" id string)))
-      ;; (format t "service-test: value of string: ~A~%" string)
       (setf (slot-value sess 'HUNCHENTOOT::session-string) string)
       (values sess cookie))))
 
