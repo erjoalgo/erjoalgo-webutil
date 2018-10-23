@@ -59,10 +59,10 @@
           as request-sym = (gensym "REQUEST-")
           as lambda-list = (loop for arg in capture-names
                               collect (if (consp arg)
-                                                 ;; ppcre:register-groups-bind allows a
-                                                 ;; (fn sym) form here
-                                                 (cadr arg)
-                                                 arg))
+                                          ;; ppcre:register-groups-bind allows a
+                                          ;; (fn sym) form here
+                                          (cadr arg)
+                                          arg))
 
           append
             `((defvar ,scanner-sym
