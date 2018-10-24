@@ -68,7 +68,9 @@
 
     (assert (= 1 (+
                   (if (api-login-token login) 1 0)
-                  (if (api-login-key login) 1 0))))
+                  (if (api-login-key login) 1 0)))
+            (login)
+            "must provide exactly one auth method: ~A" login)
 
     (if (api-login-key login)
         (push (cons "key" (api-login-key login)) params)
