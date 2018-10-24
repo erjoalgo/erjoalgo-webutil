@@ -44,11 +44,12 @@
   (params flat))
 
 (defmacro defroutes (var &rest routes)
-  "Define a hunchentoot dispatch table VAR of routes that match a regexp and a set of http verbs.
+  "Define a hunchentoot dispatch table VAR of routes that match a regexp
+   and a set of http verbs.
    Each route has the form (ALLOWED-METHODS URI-REGEXP . CAPTURE-NAMES):
 
-   ALLOWED-METHODS may be a list of http verbs as in (:GET :POST), or the special value t
-   which matches any verb.
+   ALLOWED-METHODS may be a list of http verbs as in (:GET :POST), or the
+   special value t which matches any verb.
 
    URI-REGEXP and CAPTURE-NAMES are used to match against the request path
    and capture path variables. They correspond to REGEX and VAR-LIST
@@ -85,7 +86,6 @@
               (defun ,handler-sym ()
                 (ppcre:register-groups-bind ,capture-names
                     (,scanner-sym (hunchentoot:script-name*))
-                  ;; (declare (special ,@lambda-list))
                   (log-request ,(format nil "matched ~A" dispatcher-sym))
                   ,@body))
               (defun ,dispatcher-sym (,request-sym)
