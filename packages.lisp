@@ -20,6 +20,7 @@
    #:json-req
 
    ;; http
+   #:defroutes
    #:retry-times
    #:drakma-json-content-type-hack
    #:params
@@ -46,8 +47,6 @@
    #:oauth-token-access-token
    #:oauth-token-refresh-token
    #:make-api-login
-   #:CREATE-HUNCHENTOOT-OAUTH-REDIRECT-DISPATCHER
-   #:DEFINE-REGEXP-ROUTE
+   #:create-hunchentoot-oauth-redirect-dispatcher
    #:oauth-session-user-email
-   #:google-userinfo-email
-   #:*api-req-retry-count*))
+   #:google-userinfo-email))
