@@ -10,7 +10,7 @@
   AUTH-PROVIDER-X-509-CERT-URL
   PROJECT-ID)
 
-(defun make-oauth-client-from-file (filename)
+(defun oauth-make-client-from-file (filename)
   (let* ((top-json
           (cl-json:decode-json-from-source filename))
          (client-json
@@ -37,7 +37,7 @@
                            :WANT-STREAM t)
           (cl-json:decode-json-from-source))))
 
-(defun auth-server-redirect-url (oauth-client local-redirect-uri scopes-to-request)
+(defun oauth-server-redirect-url (oauth-client local-redirect-uri scopes-to-request)
   "Example
    https://accounts.google.com/o/oauth2/v2/auth?
     scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly&
@@ -61,7 +61,7 @@
                  "client_id" client-id)
                 (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
 
-(defstruct resp-token
+(defstruct oauth-token
   access-token
   refresh-token
   expires-in
@@ -70,13 +70,13 @@
   error-description
   scope)
 
-(defun oauth-token-auth-header (resp-token)
+(defun oauth-token-auth-header (oauth-token)
   (cons :authorization
         (format nil "~A ~A"
-                (resp-token-token-type resp-token)
-                (resp-token-access-token resp-token))))
+                (oauth-token-token-type oauth-token)
+                (oauth-token-access-token oauth-token))))
 
-(defun exchange-code-for-token (code oauth-client)
+(defun oauth-exchange-code-for-token (code oauth-client)
   "code	The authorization code returned from the initial request.
    client_id	The client ID obtained from the API Console.
    client_secret	The client secret obtained from the API Console.
@@ -99,7 +99,7 @@
                    "client_id" client-id)
       :want-stream t)
      cl-json:decode-json-from-source
-     (make-from-json-alist resp-token))))
+     (make-from-json-alist oauth-token))))
 
 
 (defun create-hunchentoot-oauth-redirect-dispatcher
@@ -135,13 +135,13 @@
                      (or (hunchentoot:session-value original-url-session-key) "/"))
                     (code (-> (hunchentoot:get-parameters request)
                               (assoq "code")))
-                    (resp-token (exchange-code-for-token code oauth-client)))
-               (if (resp-token-access-token resp-token)
+                    (oauth-token (oauth-exchange-code-for-token code oauth-client)))
+               (if (oauth-token-access-token oauth-token)
                    (progn
                      (setf (hunchentoot:session-value login-session-key)
                            (make-api-login
                             :key nil
-                            :token resp-token))
+                            :token oauth-token))
                      (when on-authenticated-fn
                        (funcall on-authenticated-fn
                                 (hunchentoot:session-value login-session-key)))
@@ -149,13 +149,13 @@
                    (progn (setf (hunchentoot:return-code*)
                                 hunchentoot:+http-authorization-required+)
                           ;; TODO return json
-                          (vom:info "token request rejected: ~A~%" resp-token)
+                          (vom:info "token request rejected: ~A~%" oauth-token)
                           (erjoalgo-webutil:json-resp
                            `((:error . "token request rejected")
                              ;; cl-json complains:
                              ;; (my-clos-object) is not of a type which can be encoded by ENCODE-JSON...
                              ;; use another json library
-                             (:details .  ,(prin1-to-string resp-token)))))))))
+                             (:details .  ,(prin1-to-string oauth-token)))))))))
           (t
            (assert (not (authenticated?)))
            (lambda ()
@@ -170,7 +170,7 @@
                              scheme
                              (hunchentoot:host)
                              oauth-authorize-uri-path))
-                    (remote-auth-url (auth-server-redirect-url
+                    (remote-auth-url (oauth-server-redirect-url
                                       oauth-client
                                       local-auth-url
                                       scopes-to-request)))

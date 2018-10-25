@@ -37,15 +37,17 @@
    #:defapi
    #:*api-base-url*
 
-   #:MAKE-OAUTH-CLIENT-FROM-FILE
-   #:OAUTH-TOKEN-AUTH-HEADER
-   #:AUTH-SERVER-REDIRECT-URL
-   #:EXCHANGE-CODE-FOR-TOKEN
-   #:RESP-TOKEN-ACCESS-TOKEN
-   #:RESP-TOKEN-REFRESH-TOKEN
+   ;; oauth
+
+   #:oauth-make-client-from-file
+   #:oauth-token-auth-header
+   #:oauth-server-redirect-url
+   #:oauth-exchange-code-for-token
+   #:oauth-token-access-token
+   #:oauth-token-refresh-token
    #:make-api-login
    #:CREATE-HUNCHENTOOT-OAUTH-REDIRECT-DISPATCHER
    #:DEFINE-REGEXP-ROUTE
-   #:session-user-email
+   #:oauth-session-user-email
    #:google-userinfo-email
    #:*api-req-retry-count*))
