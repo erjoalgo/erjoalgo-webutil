@@ -27,11 +27,13 @@
 
 (defvar *api-base-url* nil
   "default base url used by api-req")
+(defvar *api-req-retry-count* 3
+  "default retry count used by api-req")
 
 (defun api-req (login resource params-alist
                 &key (method :get)
                   (depaginate nil)
-                  (retry-count 2)
+                  (retry-count *api-req-retry-count*)
                   (retry-delay 2)
                   (auto-refresh-p t)
                   (api-base-url *api-base-url*))

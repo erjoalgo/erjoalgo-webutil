@@ -47,4 +47,5 @@
    #:CREATE-HUNCHENTOOT-OAUTH-REDIRECT-DISPATCHER
    #:DEFINE-REGEXP-ROUTE
    #:session-user-email
-   #:google-userinfo-email))
+   #:google-userinfo-email
+   #:*api-req-retry-count*))
