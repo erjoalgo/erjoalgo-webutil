@@ -37,6 +37,7 @@
    #:defapi-endpoint
    #:defapi
    #:*api-base-url*
+   #:*api-req-retry-count*
 
    ;; oauth
 
