@@ -187,7 +187,7 @@
            :method :get
            :api-base-url "https://www.googleapis.com"))
 
-(defun session-user-email (&key (email-key :email)
+(defun oauth-session-user-email (&key (email-key :email)
                              (login-key :login))
   "Return the current authenticated user's email.
    If it does not exist, it is fetched and cached in the session."
