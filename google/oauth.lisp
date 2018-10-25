@@ -187,7 +187,8 @@
            :method :get
            :api-base-url "https://www.googleapis.com"))
 
-(defun session-user-email (&key (email-key :email))
+(defun session-user-email (&key (email-key :email)
+                             (login-key :login))
   "Return the current authenticated user's email.
    If it does not exist, it is fetched and cached in the session."
   (or
@@ -195,6 +196,6 @@
    (setf
     (hunchentoot:session-value email-key)
     (->
-     (hunchentoot:session-value email-key)
+     (hunchentoot:session-value login-key)
      (google-userinfo-email)
      (-json-get-nested "emails[0].value")))))
