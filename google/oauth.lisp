@@ -102,6 +102,7 @@
      (make-from-json-alist oauth-token))))
 
 
+; TODO make this work with non-google oauth servers
 (defun create-hunchentoot-oauth-redirect-dispatcher
     (oauth-client scopes-to-request
      &key (oauth-authorize-uri-path "/oauth/authorize")
