@@ -36,6 +36,7 @@
 
 (defvar *api-base-url* nil
   "default base url used by api-req")
+
 (defvar *api-req-retry-count* 3
   "default retry count used by api-req")
 
