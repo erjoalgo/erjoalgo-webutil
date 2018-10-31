@@ -203,6 +203,7 @@
         (or req-update `(nil ,(gensym "http-request-") nil))
       (vom:debug "lambda-list: ~A~%" lambda-list)
       `(defun ,name ,(append lambda-list `(&rest ,api-req-extra-args-runtime-sym))
+         ;; ,(format nil "~A ~A/~A ~A" method api-base-url resource (or default-params ""))
          (let ((,http-request-sym
                 (make-http-request :method ,method :resource ,resource
                                    ,@make-http-request-extra-args)))
