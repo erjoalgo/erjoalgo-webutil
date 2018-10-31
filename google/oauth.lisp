@@ -135,7 +135,12 @@
     (log-request "oauth-middleware")
     (labels ((authenticated? ()
                (and hunchentoot:*session*
-                    (hunchentoot:session-value login-session-key))))
+                    (hunchentoot:session-value login-session-key)))
+             (local-auth-url ()
+                 (format nil "~A://~A~A"
+                         scheme
+                         (hunchentoot:host)
+                         oauth-authorize-uri-path)))
       (vom:debug "oauth: value of (authenticated?): ~A~%" (authenticated?))
       (unless (authenticated?)
         (cond
@@ -150,7 +155,9 @@
                      (or (hunchentoot:session-value original-url-session-key) "/"))
                     (code (-> (hunchentoot:get-parameters request)
                               (assoq "code")))
-                    (oauth-token (oauth-exchange-code-for-token code oauth-client)))
+                    (oauth-token (oauth-exchange-code-for-token
+                                  code oauth-client
+                                  :redirect-uri (local-auth-url))))
                (if (oauth-token-access-token oauth-token)
                    (progn
                      (setf (hunchentoot:session-value login-session-key)
@@ -179,20 +186,14 @@
                (hunchentoot:start-session))
              (setf (hunchentoot:session-value original-url-session-key)
                    (hunchentoot:request-uri request))
-             (let* ((local-auth-url
-                     (format nil "~A://~A~A"
-                             ;; (hunchentoot:server-protocol request)
-                             scheme
-                             (hunchentoot:host)
-                             oauth-authorize-uri-path))
-                    (remote-auth-url (oauth-server-redirect-url
+             (let* ((remote-auth-url (oauth-server-redirect-url
                                       oauth-client
-                                      local-auth-url
+                                      (local-auth-url)
                                       scopes-to-request)))
                (vom:debug "redirecting to remote oauth: ~A~%"
                           remote-auth-url)
                (vom:debug "local redirect url: ~A~%"
-                          local-auth-url)
+                          (local-auth-url))
                (hunchentoot:redirect remote-auth-url)))))))))
 
 (defun google-userinfo-email (login)
