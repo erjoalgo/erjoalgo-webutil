@@ -93,17 +93,6 @@
          (params (alist-to-http-params params-alist))
          additional-headers)
 
-    (assert (= 1 (+
-                  (if (api-login-token login) 1 0)
-                  (if (api-login-key login) 1 0)))
-            (login)
-            "must provide exactly one auth method: ~A" login)
-
-    (if (api-login-key login)
-        (push (cons "key" (api-login-key login)) params)
-        (push (oauth-token-auth-header (api-login-token login))
-              additional-headers))
-
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (content http-code)
                    (loop
