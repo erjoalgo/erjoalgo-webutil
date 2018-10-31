@@ -80,7 +80,10 @@
                 (or (oauth-token-token-type oauth-token) "bearer")
                 (oauth-token-access-token oauth-token))))
 
-(defun oauth-exchange-code-for-token (code oauth-client)
+(defun oauth-exchange-code-for-token (code oauth-client
+                                      &key (redirect-uri
+                                            (car (oauth-client-redirect-uris
+                                                  oauth-client))))
   "code	The authorization code returned from the initial request.
    client_id	The client ID obtained from the API Console.
    client_secret	The client secret obtained from the API Console.
@@ -90,21 +93,27 @@
 
   (assert code)
   (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
-    (->
-     (drakma:http-request
-      token-uri
-      ;; "http://localhost:1234"
-      :method :post
-      :parameters (params
+    (multiple-value-bind (content status)
+        (let ((query-params (params
                    "code" code
                    "grant_type" "authorization_code"
                    "client_secret" client-secret
-                   "redirect_uri" (car redirect-uris)
-                   "client_id" client-id)
-      :want-stream t)
-     cl-json:decode-json-from-source
-     (make-from-json-alist oauth-token))))
-
+                             "redirect_uri" redirect-uri
+                             "client_id" client-id)))
+          (vom:debug "exchange-token: ~A query params: ~A~%"
+                     token-uri query-params)
+          (erjoalgo-webutil/google:api-req
+           (make-http-request
+            :method :post
+            :qparams query-params)
+           :api-base-url
+           token-uri))
+      (if (not (eq 200 status))
+          (error "non-200 status code: ~A ~A" status content)
+          (let ((json content))
+            (->
+             json
+             (make-from-json-alist oauth-token)))))))
 
 ; TODO make this work with non-google oauth servers
 (defun create-hunchentoot-oauth-redirect-dispatcher
