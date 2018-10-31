@@ -118,7 +118,9 @@
                                                  (list url method qparams))
                                        'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
                             (sleep retry-delay)))
-                      finally (signal _ex))
+                        finally (progn
+                                  (vom:warn "exhaused retries. signalling ~A~%" _ex)
+                                  (signal _ex)))
                  (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
                      (progn (vom:warn "got 403. trying to refresh..." )
                             (req t))
