@@ -1,8 +1,8 @@
-(fiasco:define-test-package #:erjoalgo-webutil/google/api-client/test
-  (:use #:erjoalgo-webutil/google
+(fiasco:define-test-package #:erjoalgo-webutil/api-client/test
+  (:use #:erjoalgo-webutil
         #:erjoalgo-webutil))
 
-(in-package #:erjoalgo-webutil/google/api-client/test)
+(in-package #:erjoalgo-webutil/api-client/test)
 
 (deftest test-api-client-depaginate ()
   (multiple-value-bind (body status)
@@ -13,7 +13,7 @@
                    ;; (:key . "1234")
                    ;; (:access_token . "4321")
                    ("site" . "stackoverflow")))
-       :depaginator 'erjoalgo-webutil/google::sover-depaginator
+       :depaginator 'erjoalgo-webutil::sover-depaginator
        :max-pages 3)
     (vom:debug "body: ~A~%" body)
     (vom:debug "(length body): ~A~%" (length body))
@@ -53,6 +53,6 @@
         (is (equal token "***REMOVED***"))
         (is (equal expires 86400))))))
 
-(let ((erjoalgo-webutil/google:*api-base-url*
+(let ((erjoalgo-webutil:*api-base-url*
        "https://api.stackexchange.com"))
   (run-package-tests :interactive t))

@@ -1,4 +1,4 @@
-(in-package #:erjoalgo-webutil/google)
+(in-package #:erjoalgo-webutil)
 
 (defstruct resp-page
   items

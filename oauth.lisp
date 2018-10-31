@@ -1,4 +1,4 @@
-(in-package #:erjoalgo-webutil/google)
+(in-package #:erjoalgo-webutil)
 
 (defstruct oauth-client
   client-id
@@ -102,7 +102,7 @@
                              "client_id" client-id)))
           (vom:debug "exchange-token: ~A query params: ~A~%"
                      token-uri query-params)
-          (erjoalgo-webutil/google:api-req
+          (erjoalgo-webutil:api-req
            (make-http-request
             :method :post
             :qparams query-params)
@@ -204,7 +204,7 @@
    (make-http-request
     :resource "/plus/v1/people/me")
    :api-base-url "https://www.googleapis.com"
-   :authenticator 'erjoalgo-webutil/google:google-authenticator))
+   :authenticator 'erjoalgo-webutil:google-authenticator))
 
 (defun oauth-session-user-email (&key (email-key :email))
   "Return the current authenticated user's email.

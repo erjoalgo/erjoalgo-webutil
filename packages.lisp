@@ -31,11 +31,8 @@
    #:log-request
    #:with-gensyms
    #:slot-value->
-   #:hunchentoot-make-add-fake-session))
+   #:hunchentoot-make-add-fake-session
 
-(defpackage #:erjoalgo-webutil/google
-  (:use :cl :erjoalgo-webutil)
-  (:export
    #:api-req
    #:defapi-endpoint
    #:defapi
