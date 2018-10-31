@@ -149,7 +149,7 @@
                            ;; (assert nil)
                            (values usable-content http-code content)))))))
         ;; (setf max-pages 30)
-      (if (not depaginate)
+        (if (null depaginator)
           (req)
           (loop
              with page-token-param = (cons "pageToken" nil)
