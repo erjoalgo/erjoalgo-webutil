@@ -20,11 +20,13 @@
   error-description
   scope)
 
-(defun oauth-make-client-from-file (filename)
+(defun oauth-make-client-from-file (filename &key (json-path-to-client))
   (let* ((top-json
           (cl-json:decode-json-from-source filename))
          (client-json
-          (-json-get-nested top-json "web"))
+          (if json-path-to-client
+              (-json-get-nested top-json json-path-to-client)
+              top-json))
          (client (make-from-json-alist client-json oauth-client)))
     (assert top-json)
     (assert client-json)
