@@ -13,7 +13,12 @@
        (loop
           with ,instance = (make-instance ',type)
           for (,k . ,v) in ,json-alist
-          as ,slot-sym = (intern (symbol-name ,k) ,class-package)
+          as ,slot-sym = (->
+                             (typecase ,k
+                               (symbol (symbol-name ,k))
+                               (string (json-key-to-lisp ,k))
+                               (t (error "fell through typecase")))
+                             (intern ,class-package))
           do (if (member ,slot-sym ',slots)
                  (setf (slot-value ,instance ,slot-sym) ,v)
                  (warn "missing slot ~A in type ~A" ,slot-sym ',type))
