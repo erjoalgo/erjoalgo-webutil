@@ -16,15 +16,18 @@
 
 (defun alist-to-http-params (params)
   "Convert an lisp alist of key-value pairs PARAMS
-   into drakma-compatible http-params."
-  (loop for (k . v) in params
+   into drakma-compatible http-params.
+   Later parameters override earlier ones
+   to support multiple levels of customization."
+
+  (loop for (k . v) in (reverse params)
      as k-string = (typecase k
                      (string k)
                      (symbol (lisp-to-json-key k))
                      (t (error "invalid alist key type: ~A" k)))
-     unless (assoc k-string params :test #' equal)
-     collect (cons k-string v) into params
-     finally (return params)))
+     unless (assoc k-string new-params :test #' equal)
+     collect (cons k-string v) into new-params
+     finally (return new-params)))
 
 (defvar *api-base-url* nil
   "default base url used by api-req")
