@@ -11,6 +11,15 @@
   project-id
   key)
 
+(defstruct oauth-token
+  access-token
+  refresh-token
+  expires-in
+  token-type
+  error
+  error-description
+  scope)
+
 (defun oauth-make-client-from-file (filename)
   (let* ((top-json
           (cl-json:decode-json-from-source filename))
@@ -62,14 +71,6 @@
                  "client_id" client-id)
                 (drakma::alist-to-url-encoded-string :utf-8 'drakma:url-encode)))))
 
-(defstruct oauth-token
-  access-token
-  refresh-token
-  expires-in
-  token-type
-  error
-  error-description
-  scope)
 
 (defun oauth-token-auth-header (oauth-token)
   (cons :authorization
