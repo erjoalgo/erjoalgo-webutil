@@ -11,7 +11,8 @@
 
 (defstruct api-login
   key
-  token)
+  token
+  client)
 
 (defun alist-to-http-params (params)
   "Convert an lisp alist of key-value pairs PARAMS
