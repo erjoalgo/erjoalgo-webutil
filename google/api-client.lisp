@@ -103,16 +103,19 @@
                       for i below RETRY-COUNT do
                         (handler-case
                             (return-from annoying-NS-TRY-AGAIN-CONDITION-retry
-                              (drakma:http-request url
+                                (apply
+                                 'drakma:http-request url
                                                    :method method
-                                                   :parameters params
-                                                   :additional-headers additional-headers))
+                                 ;; TODO compute this once. force enhancers to produce string
+                                 :parameters (alist-to-http-params qparams)
+                                 :additional-headers additional-headers
+                                 rest))
                           (USOCKET:NS-TRY-AGAIN-CONDITION
                               (ex)
                             (setf  _ex ex)
                             (vom:debug "~A failed with ~A: ~A retrying ~D... ~%"
                                        (format nil "~{~A~^ ~}"
-                                               (list url method params))
+                                                 (list url method qparams))
                                        'USOCKET:NS-TRY-AGAIN-CONDITION ex i)
                             (sleep retry-delay)))
                       finally (signal _ex))
