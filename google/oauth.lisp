@@ -199,15 +199,14 @@
                           (local-auth-url))
                (hunchentoot:redirect remote-auth-url)))))))))
 
-(defun google-userinfo-email (login)
-  (api-req login
-           "/plus/v1/people/me"
-           nil
-           :method :get
-           :api-base-url "https://www.googleapis.com"))
+(defun google-userinfo-email ()
+  (api-req
+   (make-http-request
+    :resource "/plus/v1/people/me")
+   :api-base-url "https://www.googleapis.com"
+   :authenticator 'erjoalgo-webutil/google:google-authenticator))
 
-(defun oauth-session-user-email (&key (email-key :email)
-                             (login-key :login))
+(defun oauth-session-user-email (&key (email-key :email))
   "Return the current authenticated user's email.
    If it does not exist, it is fetched and cached in the session."
   (or
@@ -215,6 +214,5 @@
    (setf
     (hunchentoot:session-value email-key)
     (->
-     (hunchentoot:session-value login-key)
      (google-userinfo-email)
      (-json-get-nested "emails[0].value")))))
