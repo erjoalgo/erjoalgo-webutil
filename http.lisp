@@ -40,21 +40,21 @@
   (params flat))
 
 (defmacro defroutes (var &rest routes)
-  "Define a hunchentoot dispatch table VAR of routes that match a regexp
-   and a set of http verbs.
+  "Define a hunchentoot dispatch table VAR of http routes.
    Each route has the form (ALLOWED-METHODS URI-REGEXP . CAPTURE-NAMES):
 
    ALLOWED-METHODS may be a list of http verbs as in (:GET :POST), or the
    special value t which matches any verb.
 
    URI-REGEXP and CAPTURE-NAMES are used to match against the request path
-   and capture path variables. They correspond to REGEX and VAR-LIST
-   PPCRE:REGISTER-GROUPS-BIND.
+   and capture path variables. They correspond to the REGEX and VAR-LIST
+   parameters in PPCRE:REGISTER-GROUPS-BIND.
 
    For example,
     - URI-REGEXP \"/user/([0-9]+)/product/([0-9]+)\"
     - CAPTURE-NAMES (user-id product-id)
-    could capture these path variables.
+    would capture the user-id and product-id path variables of
+    requests matching the given path regexp.
 
    - CAPTURE-NAMES could also have the form
      ((#'PARSE-INTEGER UNIQUE-ID) (#'PARSE-INTEGER PRODUCT-ID))
