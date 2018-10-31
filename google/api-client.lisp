@@ -40,8 +40,17 @@
 (defvar *api-req-retry-count* 3
   "default retry count used by api-req")
 
-(defun api-req (login resource params-alist
-                &key (method :get)
+(defstruct http-request
+  (method :get)
+  ;; base-url
+  resource
+  qparams
+  additional-headers
+  rest)
+
+(defun api-req (http-request
+                &key
+                  max-pages
                   (depaginate nil)
                   (retry-count *api-req-retry-count*)
                   (retry-delay 2)
