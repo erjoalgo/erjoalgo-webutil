@@ -7,6 +7,7 @@
                              :drakma
                              :cl-ppcre
                              :hunchentoot
+                             :gzip-stream
                              :vom
                              :fiasco)
                 :components ((:file "packages")
