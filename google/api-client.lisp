@@ -137,12 +137,16 @@
                                (setf usable-content
                                      (gzip-stream::gunzip-byte-array usable-content)))
 
-                           (if (ppcre:scan "application/json" content-type)
+                           (vom:debug "content-type: ~A~%" content-type)
+                           (cond
+                             ((ppcre:scan "application/json" content-type)
                                         ; TODO get charset from encoding
                                (setf usable-content
                                      (-> usable-content
                                          (babel:octets-to-string :encoding :utf-8)
                                          (cl-json:decode-json-from-string))))
+                             ((ppcre:scan "application/x-www-form-urlencoded" content-type)
+                              (setf usable-content (drakma::dissect-query usable-content))))
                            (vom:debug "response: ~A~%" usable-content)
                            (format t "api-client: value of usable-content: ~A~%"
                                    usable-content)
