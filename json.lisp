@@ -7,11 +7,8 @@
   "Make an instance of type TYPE from a cl-json-decoded JSON-ALIST."
   (let ((slots (loop for slot in (sb-mop:class-direct-slots (find-class type))
                   collect (slot-value slot 'SB-PCL::NAME)))
-        (instance (gensym "instance"))
-        (k (gensym "k"))
-        (v (gensym "v"))
-        (slot-sym (gensym "slot-sym"))
         (class-package (symbol-package type)))
+    (with-gensyms (instance k v slot-sym)
     `(progn
        (loop
           with ,instance = (make-instance ',type)
@@ -20,7 +17,7 @@
           do (if (member ,slot-sym ',slots)
                  (setf (slot-value ,instance ,slot-sym) ,v)
                  (warn "missing slot ~A in type ~A" ,slot-sym ',type))
-          finally (return ,instance)))))
+          finally (return ,instance))))))
 
 (defmacro with-json-paths (obj var-paths &body body)
   "Let-bind certain json paths within json OBJ.

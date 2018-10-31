@@ -3,11 +3,7 @@
 (defmacro retry-times (n timeout-secs &body body)
   "Retry form N times, with each retry timed out at TIMEOUT-SECS.
    An error is raised only after all retries have been exhausted."
-  (let ((i-sym (gensym "i"))
-        (ex-sym (gensym "ex"))
-        (loop-ex-sym (gensym "loop-ex"))
-        (loop-tag-sym (gensym "loop-tag"))
-        (timeout-secs (or timeout-secs 1)))
+  (with-gensyms (i-sym ex-sym loop-ex-sym loop-tag-sym timeout-secs)
     `(loop
         named ,loop-tag-sym
         with ,loop-ex-sym = nil
