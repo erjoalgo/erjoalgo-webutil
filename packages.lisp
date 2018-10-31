@@ -28,7 +28,10 @@
    #:first-file-with-extension
    #:check-nonnil
    #:make-directories-recursively
-   #:log-request))
+   #:log-request
+   #:with-gensyms
+   #:slot-value->
+   #:hunchentoot-make-add-fake-session))
 
 (defpackage #:erjoalgo-webutil/google
   (:use :cl :erjoalgo-webutil)
@@ -50,4 +53,13 @@
    #:make-api-login
    #:create-hunchentoot-oauth-redirect-dispatcher
    #:oauth-session-user-email
-   #:google-userinfo-email))
+   #:google-userinfo-email
+   #:http-request
+   #:http-request-qparams
+   #:make-http-request
+   #:qparams
+   #:soverflow-depaginator
+   #:google-authenticator
+   #:google-depaginator
+   #:defendpoint
+   #:*google-login*))
