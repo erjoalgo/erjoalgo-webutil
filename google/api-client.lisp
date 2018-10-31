@@ -92,6 +92,10 @@
   (let* ((url (concatenate 'string api-base-url resource)))
 
     (labels ((req (&optional already-refreshed-p)
+                 (vom:debug "~A ~A ~A~%" method url qparams)
+                 (vom:debug "http-request ~A~%" http-request)
+                 (vom:debug "depaginator: ~A~%" depaginator)
+
                  (multiple-value-bind (content http-code resp-headers)
                    (loop
                       named annoying-NS-TRY-AGAIN-CONDITION-retry
