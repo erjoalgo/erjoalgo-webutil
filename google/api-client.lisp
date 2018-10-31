@@ -128,12 +128,27 @@
                               ;; mutate http-request to refresh the token
                               (funcall authenticator http-request t)
                             (req t))
-                     (if (stringp content)
-                         (values content http-code content)
-                         (let* ((string (babel:octets-to-string content :encoding :utf-8))
-                                (json (unless (zerop (length string))
-                                        (cl-json:decode-json-from-string string))))
-                           (values json http-code string)))))))
+                       (let ((usable-content content))
+                         (with-json-paths resp-headers
+                             ((content-encoding "content-encoding")
+                              (content-type "content-type"))
+
+                           (if (equal "gzip" content-encoding)
+                               (setf usable-content
+                                     (gzip-stream::gunzip-byte-array usable-content)))
+
+                           (if (ppcre:scan "application/json" content-type)
+                                        ; TODO get charset from encoding
+                               (setf usable-content
+                                     (-> usable-content
+                                         (babel:octets-to-string :encoding :utf-8)
+                                         (cl-json:decode-json-from-string))))
+                           (vom:debug "response: ~A~%" usable-content)
+                           (format t "api-client: value of usable-content: ~A~%"
+                                   usable-content)
+                           ;; (assert nil)
+                           (values usable-content http-code content)))))))
+        ;; (setf max-pages 30)
       (if (not depaginate)
           (req)
           (loop
