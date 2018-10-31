@@ -86,6 +86,9 @@
    to refresh the token on 403 errors."
 
   (with-slots (method resource qparams additional-headers rest) http-request
+    (when authenticator
+      ;; mutate http-request to add auth info
+      (funcall authenticator http-request nil))
   (let* ((url (concatenate 'string api-base-url resource))
          (params (alist-to-http-params params-alist))
          additional-headers)
