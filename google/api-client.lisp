@@ -25,8 +25,13 @@
                      (string k)
                      (symbol (lisp-to-json-key k))
                      (t (error "invalid alist key type: ~A" k)))
+     as v-string = (typecase v
+                   (string v)
+                   (symbol (lisp-to-json-key v))
+                   (number (write-to-string v))
+                   (t (error "invalid alist key type: ~A" v)))
      unless (assoc k-string new-params :test #' equal)
-     collect (cons k-string v) into new-params
+     collect (cons k-string v-string) into new-params
      finally (return new-params)))
 
 (defvar *api-base-url* nil
