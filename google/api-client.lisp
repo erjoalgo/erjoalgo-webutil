@@ -122,7 +122,7 @@
                                   (vom:warn "exhaused retries. signalling ~A~%" _ex)
                                   (signal _ex)))
                    (assert http-code)
-                 (if (and auto-refresh-p (= 403 http-code) (not already-refreshed-p))
+                   (if (and (= 403 http-code) token-refresh-p (not already-refreshed-p))
                      (progn (vom:warn "got 403. trying to refresh..." )
                             (req t))
                      (if (stringp content)
