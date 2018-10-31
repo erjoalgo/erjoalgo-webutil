@@ -8,7 +8,8 @@
   auth-uri
   redirect-uris
   auth-provider-x-509-cert-url
-  project-id)
+  project-id
+  key)
 
 (defun oauth-make-client-from-file (filename)
   (let* ((top-json
