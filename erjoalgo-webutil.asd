@@ -15,4 +15,5 @@
                              (:file "json")
                              (:file "http")
                              (:file "google/api-client")
-                             (:file "google/oauth")))
+                             (:file "google/oauth")
+                             (:file "google/site-integrations")))
