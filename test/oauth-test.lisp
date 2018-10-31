@@ -1,7 +1,6 @@
 (fiasco:define-test-package
     #:erjoalgo-webutil/test
-  (:use #:erjoalgo-webutil/google
-        #:erjoalgo-webutil))
+  (:use #:erjoalgo-webutil))
 
 (in-package #:erjoalgo-webutil/test)
 

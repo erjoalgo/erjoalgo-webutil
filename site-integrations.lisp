@@ -1,4 +1,4 @@
-(in-package #:erjoalgo-webutil/google)
+(in-package #:erjoalgo-webutil)
 
 (defun sover-authenticator (http-request is-refresh-p)
   (when is-refresh-p
@@ -6,11 +6,11 @@
   (let* ((login (hunchentoot:session-value :login))
          (key
           (slot-value-> login
-                        (erjoalgo-webutil/google::client
-                         erjoalgo-webutil/google::key)))
+                        (erjoalgo-webutil::client
+                         erjoalgo-webutil::key)))
          (token (slot-value-> login
-                              (erjoalgo-webutil/google::token
-                               erjoalgo-webutil/google::access-token))))
+                              (erjoalgo-webutil::token
+                               erjoalgo-webutil::access-token))))
     (with-slots (qparams) http-request
       (assert (and key token))
       (push (cons "key" key) qparams)
