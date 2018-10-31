@@ -197,34 +197,25 @@
   ;; "Defines a function FUN-SYM that calls an api-endpoint.
   ;;  DEFAULT-PARAMS specifies defaults parameters used in the request
   ;;  unless overridden later by the caller."
-  `(defun ,name (login &rest params-flat)
-     ,(format nil "~A ~A/~A ~A" method api-base-url resource
-              (or default-params ""))
-     (api-req login ,resource
-              (append (apply 'params params-flat) ,default-params)
-              :api-base-url ,api-base-url
-              ,@(loop for (k v . etc) on rest by #'cddr
-                   unless (member k '(:default-params
-                                      :name
-                                      :resource
-                                      :api-base-url))
-                   append (list k v)))))
-
-(defmacro defapi (base-url &key
-                             get
-                             get-depaginate
-                             post
-                             delete)
-  `(let ()
-     ;; (*api-base-url* ,base-url)
-     ,@(loop for (method kw-args endpoints)
-          in
-            `((:get ,get)
-              (:get (:depaginate t) ,get-depaginate)
-              (:post ,post)
-              (:delete ,delete))
-          append (loop for (name resource . endpoint-params) in endpoints
-                    collect `(defapi-endpoint ,name ,method
-                               ,base-url
-                               ,resource
-                               ,@(append endpoint-params kw-args))))))
+  (assert resource)
+  (let ((api-req-extra-args-runtime-sym (gensym "api-req-extra-args-runtime-")))
+    (destructuring-bind (lambda-list http-request-sym update-http-request-form)
+        (or req-update `(nil ,(gensym "http-request-") nil))
+      (vom:debug "lambda-list: ~A~%" lambda-list)
+      `(defun ,name ,(append lambda-list `(&rest ,api-req-extra-args-runtime-sym))
+         (let ((,http-request-sym
+                (make-http-request :method ,method :resource ,resource
+                                   ,@make-http-request-extra-args)))
+           ,update-http-request-form
+           ,(let ((args `(,http-request-sym
+                                  (append
+                                   ,api-req-extra-args-runtime-sym
+                                   ',api-req-extra-args-compile-time
+                                   (list :api-base-url ,base-url
+                                     :depaginator ',depaginator
+                                     :authenticator ',authenticator)
+                                  ))))
+              (vom:debug "args ~A~%" args)
+              `(progn
+                 (vom:debug "runtime args ~A~%" ',args)
+                 (apply 'api-req ,@args))))))))
