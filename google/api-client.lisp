@@ -124,6 +124,9 @@
                    (assert http-code)
                    (if (and (= 403 http-code) token-refresh-p (not already-refreshed-p))
                      (progn (vom:warn "got 403. trying to refresh..." )
+                                        ; TODO refresh token here
+                              ;; mutate http-request to refresh the token
+                              (funcall authenticator http-request t)
                             (req t))
                      (if (stringp content)
                          (values content http-code content)
