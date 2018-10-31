@@ -92,7 +92,7 @@
   (let* ((url (concatenate 'string api-base-url resource)))
 
     (labels ((req (&optional already-refreshed-p)
-               (multiple-value-bind (content http-code)
+                 (multiple-value-bind (content http-code resp-headers)
                    (loop
                       named annoying-NS-TRY-AGAIN-CONDITION-retry
                       with _ex = nil
