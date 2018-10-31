@@ -85,6 +85,7 @@
    When AUTO-REFRESH-P is non-nil, an one-time attempt (per retry) is made, if possible,
    to refresh the token on 403 errors."
 
+  (with-slots (method resource qparams additional-headers rest) http-request
   (let* ((url (concatenate 'string api-base-url resource))
          (params (alist-to-http-params params-alist))
          additional-headers)
