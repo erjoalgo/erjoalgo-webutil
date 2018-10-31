@@ -1,0 +1,83 @@
+(in-package #:erjoalgo-webutil/google)
+
+(defun sover-authenticator (http-request is-refresh-p)
+  (when is-refresh-p
+    (error "not implemented"))
+  (let* ((login (hunchentoot:session-value :login))
+         (key
+          (slot-value-> login
+                        (erjoalgo-webutil/google::client
+                         erjoalgo-webutil/google::key)))
+         (token (slot-value-> login
+                              (erjoalgo-webutil/google::token
+                               erjoalgo-webutil/google::access-token))))
+    (with-slots (qparams) http-request
+      (assert (and key token))
+      (push (cons "key" key) qparams)
+      (push (cons "access_token" token) qparams))))
+
+(defun sover-depaginator (resp-body http-request page-idx)
+  (with-slots (qparams) http-request
+    (if (null resp-body)
+        (progn
+          (assert (eq page-idx 1))
+          (push (cons "page" "1") qparams)
+          (values nil t))
+        (with-json-paths resp-body
+            ((items "items")
+             (has-more "has_more"))
+          (if has-more
+              (let ((page-cons (assoc "page" qparams :test 'equal)))
+                ;; increase page number
+                (assert page-cons)
+                (setf (cdr page-cons)
+                      (write-to-string (1+ (parse-integer (cdr page-cons)))))
+                (vom:debug "new qparams: ~A~%" qparams)
+                (values items t))
+              (values items nil))))))
+
+(defun google-depaginator (resp-body http-request page-idx)
+  (with-slots (qparams) http-request
+    (if (null resp-body)
+        (progn
+          (assert (eq page-idx 1))
+          (values nil t))
+        (with-json-paths resp-body
+            ((items "items")
+             (page-token "nextPageToken"))
+          (if page-token
+              (let ((page-cons
+                     (or (assoc "pageToken"
+                                qparams :test 'equal)
+                         (car (push (cons "pageToken" 1) qparams)))))
+                ;; increase page number
+                ;; (assert page-cons)
+                (setf (cdr page-cons) page-token)
+                (vom:debug "new qparams: ~A~%" qparams)
+                (values items t))
+              (values items nil))))))
+
+(defvar *google-login* nil)
+
+(defun google-authenticator (http-request is-refresh-p)
+  (declare (ignore is-refresh-p))
+  (let* ((login (or *google-login*
+                    (hunchentoot:session-value :login))))
+    (vom:debug "login is ~A~%" login)
+    (with-slots (key token) login
+      (format t "api-client: value of key: ~A~%" key)
+      (format t "api-client: value of token: ~A~%" token)
+      (assert (= 1 (+ (if key 1 0)
+                      (if token 1 0)))
+              (login)
+              "must provide exactly one auth method: ~A" login)
+      (with-slots (qparams additional-headers) http-request
+        (if token
+            (with-slots (access-token token-type) token
+              (assert (and access-token token-type))
+              (push (cons "authorization"
+                          (format nil "~A ~A"
+                                  (or token-type "bearer")
+                                  access-token))
+                    additional-headers)))
+        (push (cons "key" key) qparams)))))
