@@ -151,48 +151,34 @@
         ;; (setf max-pages 30)
         (if (null depaginator)
           (req)
+            (let (all-items last-http-code last-resp-body)
           (loop
-             with page-token-param = (cons "pageToken" nil)
-             with total-pages = -1
              for page-idx from 1
-
-             as resp-string = nil
-             as page = nil
-             as error = nil
-             as status-code = nil
-
-             do (multiple-value-bind (body http-code string) (req)
-                  (setf resp-string string
-                        status-code http-code
-                        ;; this may fail?
-                        page (make-from-json-alist body resp-page)
-                        error (resp-page-error page)))
-             do (vom:debug "page: ~A/~A params: ~A~%" page-idx
-                           (ceiling total-pages)
-                           params)
-             when (and (null error)
-                                        ;2xx
-                       (eq 2 (floor status-code 100)))
+                 as continue = (when (or (null last-http-code)
+                                         (eq 2 (floor last-http-code 100)))
+                                 (multiple-value-bind (items continue?)
+                                     (funcall depaginator last-resp-body http-request page-idx)
+                                   (when continue?
+                                     ;; (assert (assoq (http-request-qparams http-request) "page"))
+                                     )
+                                        ; TODO destructive append
+                                   (setf all-items (append all-items items))
+                                   continue?))
+                 while (and continue (or (null max-pages)
+                                         (<= page-idx max-pages)))
              do
+                   (multiple-value-bind (body http-code) (req)
+                     (setf last-http-code http-code
+                           last-resp-body body)
+                     (vom:debug "page: ~A params: ~A~%"
+                                page-idx
+                                qparams))
+                 finally
                (progn
-                 (setf (cdr page-token-param)
-                       (resp-page-next-page-token page))
-
-                 (when (eq -1 total-pages)
-                   (with-json-paths (resp-page-page-info page)
-                       ((per-page "resultsPerPage")
-                        (total "totalResults"))
-                     (setf total-pages (ceiling total (if (zerop per-page) -1 1))
-                           params (cons page-token-param params)))))
-
-
-             append (resp-page-items page) into items
-
-             while (and (cdr page-token-param) (not error))
-
-             finally (progn
-                       (vom:debug "fetched ~A items~%" (length items))
-                       (return (values items status-code resp-string error))))))))
+                     (vom:debug "fetched ~A items~%" (length all-items))
+                     (assert last-http-code)
+                     (return (values all-items last-http-code
+                                     last-resp-body))))))))))
 
 (defmacro defapi-endpoint (name method api-base-url resource
                            &rest rest
