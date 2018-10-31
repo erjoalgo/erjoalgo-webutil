@@ -89,9 +89,7 @@
     (when authenticator
       ;; mutate http-request to add auth info
       (funcall authenticator http-request nil))
-  (let* ((url (concatenate 'string api-base-url resource))
-         (params (alist-to-http-params params-alist))
-         additional-headers)
+  (let* ((url (concatenate 'string api-base-url resource)))
 
     (labels ((req (&optional already-refreshed-p)
                (multiple-value-bind (content http-code)
