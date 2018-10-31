@@ -50,8 +50,9 @@
 
 (defun api-req (http-request
                 &key
+                  authenticator
+                  depaginator
                   max-pages
-                  (depaginate nil)
                   (retry-count *api-req-retry-count*)
                   (retry-delay 2)
                   (auto-refresh-p t)
