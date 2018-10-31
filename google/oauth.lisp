@@ -108,6 +108,7 @@
             :qparams query-params)
            :api-base-url
            token-uri))
+      (vom:debug "headers: ~A~%" headers)
       (if (not (eq 200 status))
           (error "non-200 status code: ~A ~A" status content)
           (let ((json content))
