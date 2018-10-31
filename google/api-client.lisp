@@ -53,9 +53,9 @@
                   authenticator
                   depaginator
                   max-pages
+                  token-refresh-p
                   (retry-count *api-req-retry-count*)
                   (retry-delay 2)
-                  (auto-refresh-p t)
                   (api-base-url *api-base-url*))
 
   "Make a REST api request to the URL: (CONCAT API-BASE-URL RESOURCE)
