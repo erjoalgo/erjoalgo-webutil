@@ -162,6 +162,9 @@
                    (progn
                      (setf (hunchentoot:session-value login-session-key)
                            (make-api-login
+                            ;; TODO does this make sessions 'heavy'?
+                            ;; may compromise client credentials?
+                            :client oauth-client
                             :key nil
                             :token oauth-token))
                      (when on-authenticated-fn
