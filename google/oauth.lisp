@@ -77,7 +77,7 @@
 (defun oauth-token-auth-header (oauth-token)
   (cons :authorization
         (format nil "~A ~A"
-                (oauth-token-token-type oauth-token)
+                (or (oauth-token-token-type oauth-token) "bearer")
                 (oauth-token-access-token oauth-token))))
 
 (defun oauth-exchange-code-for-token (code oauth-client)
