@@ -61,7 +61,7 @@
   "Make a REST api request to the URL: (CONCAT API-BASE-URL RESOURCE)
    with query parameters PARAMS-ALIST. (Note that no slash is added in between.)
    Retry RETRY-COUNT times with a delay of RETRY-DELAY seconds
-   after eeach retry in case of network errors.
+   after each retry in case of network errors.
 
    Returns values (DECODED-JSON RESP-CODE RESP-STRING)
 
