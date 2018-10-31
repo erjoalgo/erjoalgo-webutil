@@ -7,8 +7,8 @@
   scopes
   auth-uri
   redirect-uris
-  AUTH-PROVIDER-X-509-CERT-URL
-  PROJECT-ID)
+  auth-provider-x-509-cert-url
+  project-id)
 
 (defun oauth-make-client-from-file (filename)
   (let* ((top-json
