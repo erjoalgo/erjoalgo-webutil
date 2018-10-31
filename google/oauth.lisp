@@ -123,7 +123,9 @@
        (scheme "https")
        (login-session-key :login)
        (original-url-session-key 'original-url)
-       on-authenticated-fn)
+       on-authenticated-fn
+       ;; (response-class 'oauth-token)
+       )
   "Hunchentoot oauth middleware dispatcher:
    If auth is missing, redirect to remote authorization server.
    Otherwise, if the path matches OAUTH-AUTHORIZE-URI-PATH,
