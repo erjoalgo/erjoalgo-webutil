@@ -39,3 +39,13 @@
       (uiop:ensure-directory-pathname dir))
      :mode mode)
     (sb-posix:mkdir dir mode)))
+
+(defmacro with-gensyms (syms &body body)
+  `(let ,(loop for sym in syms
+            collect (list sym `(gensym ,(format nil "~A-" (symbol-name sym)))))
+     ,@body))
+
+(defmacro slot-value-> (obj slots)
+  (if slots
+      `(slot-value-> (slot-value ,obj ',(car slots)) ,(cdr slots))
+      obj))
