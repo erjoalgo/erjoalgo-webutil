@@ -180,10 +180,20 @@
                      (return (values all-items last-http-code
                                      last-resp-body))))))))))
 
-(defmacro defapi-endpoint (name method api-base-url resource
-                           &rest rest
-                           &key default-params
-                             &allow-other-keys)
+;; the keywords below whose default forms are undefined symbols
+;; should be either provided explicitly
+;; or their defaults let-bound at compile time via COMPILER-LET
+;; TODO muffle warnings
+(defmacro defendpoint (name
+                       &key (base-url base-url)
+                         (req-update req-update)
+                         (method method)
+                         (resource resource)
+                         make-http-request-extra-args
+                         (depaginator depaginator)
+                         (authenticator authenticator)
+                         (api-req-extra-args-compile-time
+                          api-req-extra-args-compile-time))
   ;; "Defines a function FUN-SYM that calls an api-endpoint.
   ;;  DEFAULT-PARAMS specifies defaults parameters used in the request
   ;;  unless overridden later by the caller."
