@@ -110,7 +110,7 @@
                                  :parameters (alist-to-http-params qparams)
                                  :additional-headers additional-headers
                                  rest))
-                          (USOCKET:NS-TRY-AGAIN-CONDITION
+                          ((or USOCKET:NS-TRY-AGAIN-CONDITION USOCKET:TIMEOUT-ERROR)
                               (ex)
                             (setf  _ex ex)
                             (vom:debug "~A failed with ~A: ~A retrying ~D... ~%"
