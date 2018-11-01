@@ -23,7 +23,7 @@
 
 (defun oauth-make-client-from-file (filename &key (json-path-to-client))
   (let* ((top-json
-          (cl-json:decode-json-from-source filename))
+          (cl-json:decode-json-from-source (pathname filename)))
          (client-json
           (if json-path-to-client
               (-json-get-nested top-json json-path-to-client)
