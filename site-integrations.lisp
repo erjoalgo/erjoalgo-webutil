@@ -11,8 +11,8 @@
          (token (slot-value-> login
                               (erjoalgo-webutil::token
                                erjoalgo-webutil::access-token))))
+    (assert (and key token))
     (with-slots (qparams) http-request
-      (assert (and key token))
       (push (cons "key" key) qparams)
       (push (cons "access_token" token) qparams))))
 
