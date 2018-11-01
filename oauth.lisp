@@ -9,7 +9,8 @@
   redirect-uris
   auth-provider-x-509-cert-url
   project-id
-  key)
+  key
+  meta)
 
 (defstruct oauth-token
   access-token
