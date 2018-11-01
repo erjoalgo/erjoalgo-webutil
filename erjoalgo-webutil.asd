@@ -15,5 +15,6 @@
                              (:file "json")
                              (:file "http")
                              (:file "api-client")
+                             (:file "defendpoint")
                              (:file "oauth")
                              (:file "site-integrations")))
