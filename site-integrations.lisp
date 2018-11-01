@@ -1,6 +1,6 @@
 (in-package #:erjoalgo-webutil)
 
-(defun sover-authenticator (http-request is-refresh-p)
+(defun sexchange-authenticator (http-request is-refresh-p)
   (when is-refresh-p
     (error "not implemented"))
   (let* ((login (hunchentoot:session-value :login))
@@ -16,7 +16,7 @@
       (push (cons "key" key) qparams)
       (push (cons "access_token" token) qparams))))
 
-(defun sover-depaginator (resp-body http-request page-idx)
+(defun sexchange-depaginator (resp-body http-request page-idx)
   (with-slots (qparams) http-request
     (if (null resp-body)
         (progn
