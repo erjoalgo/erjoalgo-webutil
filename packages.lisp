@@ -59,4 +59,8 @@
    #:google-authenticator
    #:google-depaginator
    #:defendpoint
-   #:*google-login*))
+   #:*google-login*
+   #:sexchange-login-key
+   #:google-login-key
+   #:hunchentoot-create-oauth-redirect-handler
+   #:first-file-matching))
