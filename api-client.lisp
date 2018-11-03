@@ -19,7 +19,6 @@
    into drakma-compatible http-params.
    Later parameters override earlier ones
    to support multiple levels of customization."
-
   (loop for (k . v) in (reverse params)
      as k-string = (typecase k
                      (string k)
