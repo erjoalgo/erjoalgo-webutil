@@ -45,16 +45,16 @@
 
 (defun fetch-token (oauth-client redirect-uri)
   (with-slots (client-id client-secret token-uri) oauth-client
-      (-> (drakma:http-request token-uri :parameters
-                               (append
-                                (params
-                                 "client_id" client-id
-                                 "redirect_uri" redirect-uri
-                                 "grant_type" "authorization_code")
-                                (when client-secret
-                                  `(("client_secret" ,client-secret))))
-                           :WANT-STREAM t)
-          (cl-json:decode-json-from-source))))
+    (-> (drakma:http-request token-uri :parameters
+                             (append
+                              (params
+                               "client_id" client-id
+                               "redirect_uri" redirect-uri
+                               "grant_type" "authorization_code")
+                              (when client-secret
+                                `(("client_secret" ,client-secret))))
+                             :WANT-STREAM t)
+        (cl-json:decode-json-from-source))))
 
 (defun oauth-server-redirect-url (oauth-client local-redirect-uri scopes-to-request)
   "Example
@@ -102,9 +102,9 @@
   (with-slots (scopes client-id client-secret token-uri redirect-uris) oauth-client
     (multiple-value-bind (content status)
         (let ((query-params (params
-                   "code" code
-                   "grant_type" "authorization_code"
-                   "client_secret" client-secret
+                             "code" code
+                             "grant_type" "authorization_code"
+                             "client_secret" client-secret
                              "redirect_uri" redirect-uri
                              "client_id" client-id)))
           (vom:debug "exchange-token: ~A query params: ~A~%"
@@ -123,7 +123,7 @@
              json
              (make-from-json-alist oauth-token)))))))
 
-; TODO make this work with non-google oauth servers
+                                        ; TODO make this work with non-google oauth servers
 (defun hunchentoot-create-oauth-redirect-handler
     (oauth-client scopes-to-request handler
      &key (oauth-authorize-uri-path "/oauth/authorize")
@@ -147,15 +147,15 @@
   (lambda ()
     (symbol-macrolet ((login (hunchentoot:session-value login-session-key)))
       (let ((local-auth-url (format nil "~A://~A~A"
-                         scheme
-                         (hunchentoot:host)
+                                    scheme
+                                    (hunchentoot:host)
                                     oauth-authorize-uri-path))
             (request hunchentoot:*request*))
         (log-request "oauth-middleware")
 
         ;; TODO handle this in another layer
         (unless hunchentoot:*session* (hunchentoot:start-session))
-             (assert hunchentoot:*session*)
+        (assert hunchentoot:*session*)
 
         ;; maybe invalidate session if token expired
         (when login
@@ -176,56 +176,56 @@
             (if (equal oauth-authorize-uri-path (hunchentoot:script-name request))
                 ;; back from the authorization server... exchange code for token
                 ;; (assert (hunchentoot:session-value original-url-session-key))
-             (let* ((original-url
+                (let* ((original-url
                         (check-nonnil (hunchentoot:session-value original-url-session-key)))
-                    (code (-> (hunchentoot:get-parameters request)
+                       (code (-> (hunchentoot:get-parameters request)
                                  (assoq "code")
                                  check-nonnil))
                        (oauth-token (check-nonnil
                                      (oauth-exchange-code-for-token
-                                  code oauth-client
+                                      code oauth-client
                                       :redirect-uri local-auth-url))))
 
                   (vom:debug "back from auth server with params: ~A~%"
                              (hunchentoot:get-parameters request))
 
-               (if (oauth-token-access-token oauth-token)
+                  (if (oauth-token-access-token oauth-token)
                       ;; successfully obtained token
-                   (progn
+                      (progn
                         (setf
                          (slot-value oauth-token 'obtained-at) (GET-UNIVERSAL-TIME)
                          login (make-api-login
-                            ;; TODO does this make sessions 'heavy'?
-                            ;; may compromise client credentials?
-                            :client oauth-client
-                            :key nil
-                            :token oauth-token))
-                     (when on-authenticated-fn
+                                ;; TODO does this make sessions 'heavy'?
+                                ;; may compromise client credentials?
+                                :client oauth-client
+                                :key nil
+                                :token oauth-token))
+                        (when on-authenticated-fn
                           (funcall on-authenticated-fn login))
-                     (hunchentoot:redirect original-url))
+                        (hunchentoot:redirect original-url))
 
                       ;; exchange for token was rejected
-                   (progn (setf (hunchentoot:return-code*)
-                                hunchentoot:+http-authorization-required+)
-                          ;; TODO return json
-                          (vom:info "token request rejected: ~A~%" oauth-token)
-                          (erjoalgo-webutil:json-resp
-                           `((:error . "token request rejected")
-                             ;; cl-json complains:
+                      (progn (setf (hunchentoot:return-code*)
+                                   hunchentoot:+http-authorization-required+)
+                             ;; TODO return json
+                             (vom:info "token request rejected: ~A~%" oauth-token)
+                             (erjoalgo-webutil:json-resp
+                              `((:error . "token request rejected")
+                                ;; cl-json complains:
                                 ;; (my-clos-object)
                                 ;; is not of a type which can be encoded by ENCODE-JSON
                                 ;; ...
                                 (:details . ,(prin1-to-string oauth-token)))))))
 
                 ;; redirect to remote auth server
-             (let* ((remote-auth-url (oauth-server-redirect-url
-                                      oauth-client
+                (let* ((remote-auth-url (oauth-server-redirect-url
+                                         oauth-client
                                          local-auth-url
-                                      scopes-to-request)))
+                                         scopes-to-request)))
                   (setf (hunchentoot:session-value original-url-session-key)
                         (hunchentoot:request-uri request))
-               (vom:debug "redirecting to remote oauth: ~A~%"
-                          remote-auth-url)
-               (vom:debug "local redirect url: ~A~%"
+                  (vom:debug "redirecting to remote oauth: ~A~%"
+                             remote-auth-url)
+                  (vom:debug "local redirect url: ~A~%"
                              local-auth-url)
                   (hunchentoot:redirect remote-auth-url))))))))
