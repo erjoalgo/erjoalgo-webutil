@@ -22,6 +22,11 @@
   scope
   obtained-at)
 
+(defstruct api-login
+  key
+  token
+  client)
+
 (defun oauth-make-client-from-file (filename &key (json-path-to-client))
   (let* ((top-json
           (cl-json:decode-json-from-source (pathname filename)))
