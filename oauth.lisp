@@ -124,60 +124,87 @@
              (make-from-json-alist oauth-token)))))))
 
 ; TODO make this work with non-google oauth servers
-(defun create-hunchentoot-oauth-redirect-dispatcher
-    (oauth-client scopes-to-request
+(defun hunchentoot-create-oauth-redirect-handler
+    (oauth-client scopes-to-request handler
      &key (oauth-authorize-uri-path "/oauth/authorize")
        (scheme "https")
        (login-session-key :login)
        (original-url-session-key 'original-url)
        on-authenticated-fn)
-  "Hunchentoot oauth middleware dispatcher:
-   If auth is missing, redirect to remote authorization server.
-   Otherwise, if the path matches OAUTH-AUTHORIZE-URI-PATH,
-   exchange code for token and associate token with session.
-   Otherwise, allow other dispatchers to handle the request."
+
+  ;; "Hunchentoot oauth middleware dispatcher:
+  ;;  If auth is missing, redirect to remote authorization server.
+  ;;  Otherwise, if the path matches OAUTH-AUTHORIZE-URI-PATH,
+  ;;  exchange code for token and associate token with session.
+  ;;  Otherwise, allow other dispatchers to handle the request."
+
   ;; the dispatcher returns a closure which is invoked with the request object
   ;; and returns a handler iff it can handle the request
-  (lambda (request)
-    (log-request "oauth-middleware")
-    (labels ((authenticated? ()
-               (and hunchentoot:*session*
-                    (hunchentoot:session-value login-session-key)))
-             (local-auth-url ()
-                 (format nil "~A://~A~A"
+
+  ;; A request handler is a function of zero arguments which relies on
+  ;; the special variable *REQUEST* to access the request instance being serviced
+
+  (lambda ()
+    (symbol-macrolet ((login (hunchentoot:session-value login-session-key)))
+      (let ((local-auth-url (format nil "~A://~A~A"
                          scheme
                          (hunchentoot:host)
-                         oauth-authorize-uri-path)))
-      (vom:debug "oauth: value of (authenticated?): ~A~%" (authenticated?))
-      (unless (authenticated?)
-        (cond
-          ((equal oauth-authorize-uri-path (hunchentoot:script-name request))
-           (vom:debug "back from auth server with params: ~A~%"
-                      (hunchentoot:get-parameters request))
-           (lambda ()
-             ;; back from the authorization server... exchange code for token
+                                    oauth-authorize-uri-path))
+            (request hunchentoot:*request*))
+        (log-request "oauth-middleware")
+
+        ;; TODO handle this in another layer
+        (unless hunchentoot:*session* (hunchentoot:start-session))
              (assert hunchentoot:*session*)
-             (assert (hunchentoot:session-value original-url-session-key))
+
+        ;; maybe invalidate session if token expired
+        (when login
+          (with-slots (expires-in obtained-at) (api-login-token login)
+            (assert obtained-at)
+            (let* ((now (GET-UNIVERSAL-TIME))
+                   (expires-at (+ obtained-at expires-in)))
+              (when (>= now expires-at)
+                (vom:warn "token expired. invalidating session login credentials...")
+                (setf login nil)))))
+
+        (if login
+            ;; non-nil login implies not expired and hopefully valid
+            ;; TODO maybe invalidate on 401 handler retcode
+            (funcall handler)
+
+            ;; not authenticated
+            (if (equal oauth-authorize-uri-path (hunchentoot:script-name request))
+                ;; back from the authorization server... exchange code for token
+                ;; (assert (hunchentoot:session-value original-url-session-key))
              (let* ((original-url
-                     (or (hunchentoot:session-value original-url-session-key) "/"))
+                        (check-nonnil (hunchentoot:session-value original-url-session-key)))
                     (code (-> (hunchentoot:get-parameters request)
-                              (assoq "code")))
-                    (oauth-token (oauth-exchange-code-for-token
+                                 (assoq "code")
+                                 check-nonnil))
+                       (oauth-token (check-nonnil
+                                     (oauth-exchange-code-for-token
                                   code oauth-client
-                                  :redirect-uri (local-auth-url))))
+                                      :redirect-uri local-auth-url))))
+
+                  (vom:debug "back from auth server with params: ~A~%"
+                             (hunchentoot:get-parameters request))
+
                (if (oauth-token-access-token oauth-token)
+                      ;; successfully obtained token
                    (progn
-                     (setf (hunchentoot:session-value login-session-key)
-                           (make-api-login
+                        (setf
+                         (slot-value oauth-token 'obtained-at) (GET-UNIVERSAL-TIME)
+                         login (make-api-login
                             ;; TODO does this make sessions 'heavy'?
                             ;; may compromise client credentials?
                             :client oauth-client
                             :key nil
                             :token oauth-token))
                      (when on-authenticated-fn
-                       (funcall on-authenticated-fn
-                                (hunchentoot:session-value login-session-key)))
+                          (funcall on-authenticated-fn login))
                      (hunchentoot:redirect original-url))
+
+                      ;; exchange for token was rejected
                    (progn (setf (hunchentoot:return-code*)
                                 hunchentoot:+http-authorization-required+)
                           ;; TODO return json
@@ -185,26 +212,24 @@
                           (erjoalgo-webutil:json-resp
                            `((:error . "token request rejected")
                              ;; cl-json complains:
-                             ;; (my-clos-object) is not of a type which can be encoded by ENCODE-JSON...
-                             ;; use another json library
-                             (:details .  ,(prin1-to-string oauth-token)))))))))
-          (t
-           (assert (not (authenticated?)))
-           (lambda ()
-             ;; missing login, redirect to remote auth server
-             (unless hunchentoot:*session*
-               (hunchentoot:start-session))
-             (setf (hunchentoot:session-value original-url-session-key)
-                   (hunchentoot:request-uri request))
+                                ;; (my-clos-object)
+                                ;; is not of a type which can be encoded by ENCODE-JSON
+                                ;; ...
+                                (:details . ,(prin1-to-string oauth-token)))))))
+
+                ;; redirect to remote auth server
              (let* ((remote-auth-url (oauth-server-redirect-url
                                       oauth-client
-                                      (local-auth-url)
+                                         local-auth-url
                                       scopes-to-request)))
+                  (setf (hunchentoot:session-value original-url-session-key)
+                        (hunchentoot:request-uri request))
                (vom:debug "redirecting to remote oauth: ~A~%"
                           remote-auth-url)
                (vom:debug "local redirect url: ~A~%"
-                          (local-auth-url))
-               (hunchentoot:redirect remote-auth-url)))))))))
+                             local-auth-url)
+                  (hunchentoot:redirect remote-auth-url))))))))
+
 
 (defun google-userinfo-email ()
   (api-req
