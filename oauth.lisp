@@ -19,7 +19,8 @@
   token-type
   error
   error-description
-  scope)
+  scope
+  obtained-at)
 
 (defun oauth-make-client-from-file (filename &key (json-path-to-client))
   (let* ((top-json
