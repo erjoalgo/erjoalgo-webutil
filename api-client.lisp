@@ -9,11 +9,6 @@
   kind
   error)
 
-(defstruct api-login
-  key
-  token
-  client)
-
 (defun alist-to-http-params (params)
   "Convert an lisp alist of key-value pairs PARAMS
    into drakma-compatible http-params.
