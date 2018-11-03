@@ -89,3 +89,21 @@
                                   access-token))
                     additional-headers)))
         (push (cons "key" key) qparams)))))
+
+(defun google-userinfo-email ()
+  (api-req
+   (make-http-request
+    :resource "/plus/v1/people/me")
+   :api-base-url "https://www.googleapis.com"
+   :authenticator 'erjoalgo-webutil:google-authenticator))
+
+(defun google-current-session-user-email (&key (email-key :email))
+  "Return the current authenticated user's email.
+   If it does not exist, it is fetched and cached in the session."
+  (or
+   (hunchentoot:session-value email-key)
+   (setf
+    (hunchentoot:session-value email-key)
+    (->
+     (google-userinfo-email)
+     (-json-get-nested "emails[0].value")))))
