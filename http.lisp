@@ -137,10 +137,11 @@ to be called within a hunchentoot handler. "
        (assert ,val-sym nil "assertion ~A failed" ',form)
        ,val-sym)))
 
-(defun first-file-with-extension (directory ext)
+(defun first-file-matching (pathname-maybe-wild)
   "Locate the first file in DIRECTORY matching the extension EXT."
-  (loop for path in (uiop:directory-files directory)
-     thereis (and (equal ext (pathname-type path)) path)))
+  (if (wild-pathname-p pathname-maybe-wild)
+      (car (directory pathname-maybe-wild))
+      pathname-maybe-wild))
 
 (defun hunchentoot-make-add-fake-session (data user-agent
                                           &key
