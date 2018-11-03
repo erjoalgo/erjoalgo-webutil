@@ -1,9 +1,12 @@
 (in-package #:erjoalgo-webutil)
 
-(defun sexchange-authenticator (http-request is-refresh-p)
+(defvar sexchange-login-key :sexchange-login)
+
+(defun sexchange-authenticator (http-request is-refresh-p
+                                &key (login-key sexchange-login-key))
   (when is-refresh-p
     (error "not implemented"))
-  (let* ((login (hunchentoot:session-value :login))
+  (let* ((login (hunchentoot:session-value login-key))
          (key
           (slot-value-> login
                         (erjoalgo-webutil::client
@@ -36,6 +39,8 @@
                 (values items t))
               (values items nil))))))
 
+(defvar google-login-key :google-login)
+
 (defun google-depaginator (resp-body http-request page-idx)
   (with-slots (qparams) http-request
     (if (null resp-body)
@@ -59,10 +64,11 @@
 
 (defvar *google-login* nil)
 
-(defun google-authenticator (http-request is-refresh-p)
+(defun google-authenticator (http-request is-refresh-p
+                             &key (login-key google-login-key))
   (declare (ignore is-refresh-p))
   (let* ((login (or *google-login*
-                    (hunchentoot:session-value :login)))
+                    (hunchentoot:session-value login-key)))
          key)
     (vom:debug "login is ~A~%" login)
     (with-slots (client token) login
