@@ -189,7 +189,6 @@
                                      (oauth-exchange-code-for-token
                                       code oauth-client
                                       :redirect-uri local-auth-url))))
-
                   (vom:debug "back from auth server with params: ~A~%"
                              (hunchentoot:get-parameters request))
 
