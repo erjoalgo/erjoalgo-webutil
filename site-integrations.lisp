@@ -72,11 +72,10 @@
                              &key (login-key google-login-key))
   (declare (ignore is-refresh-p))
   (let* ((login (or *google-login*
-                    (hunchentoot:session-value login-key)))
-         key)
+                    (hunchentoot:session-value login-key))))
     (vom:debug "login is ~A~%" login)
-    (with-slots (client token) login
-      (setf key (when client (oauth-client-key client)))
+    (with-slots (client token key) login
+      (setf key (or key (when client (oauth-client-key client))))
       (format t "api-client: value of key: ~A~%" key)
       (format t "api-client: value of token: ~A~%" token)
       (assert (= 1 (+ (if key 1 0)
