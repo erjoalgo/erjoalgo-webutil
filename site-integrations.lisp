@@ -76,8 +76,8 @@
     (vom:debug "login is ~A~%" login)
     (with-slots (client token key) login
       (setf key (or key (when client (oauth-client-key client))))
-      (format t "api-client: value of key: ~A~%" key)
-      (format t "api-client: value of token: ~A~%" token)
+      (vom:debug4 "api-client: value of key: ~A~%" key)
+      (vom:debug4 "api-client: value of token: ~A~%" token)
       (assert (= 1 (+ (if key 1 0)
                       (if token 1 0)))
               (login)
