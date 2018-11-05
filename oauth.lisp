@@ -163,11 +163,13 @@
           (with-slots (expires-in expires obtained-at) (api-login-token login)
             (setf expires-in (or expires-in expires))
             (assert obtained-at)
-            (let* ((now (GET-UNIVERSAL-TIME))
-                   (expires-at (+ obtained-at expires-in)))
-              (when (>= now expires-at)
-                (vom:warn "token expired. invalidating session login credentials...")
-                (setf login nil)))))
+            (if (not expires-in)
+                (warn "unable to compute token expiration time")
+                (let* ((now (GET-UNIVERSAL-TIME))
+                       (expires-at (+ obtained-at expires-in)))
+                  (when (>= now expires-at)
+                    (vom:warn "token expired. invalidating session login credentials...")
+                    (setf login nil))))))
 
         (if login
             ;; non-nil login implies not expired and hopefully valid
