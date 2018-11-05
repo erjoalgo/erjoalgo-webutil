@@ -144,8 +144,9 @@ to be called within a hunchentoot handler. "
 (defun first-file-matching (pathname-maybe-wild)
   "Locate the first file in DIRECTORY matching the extension EXT."
   (if (wild-pathname-p pathname-maybe-wild)
-      (car (directory pathname-maybe-wild))
-      pathname-maybe-wild))
+      (check-nonnil
+       (car (directory pathname-maybe-wild)))
+      (truename pathname-maybe-wild)))
 
 (defun hunchentoot-make-add-fake-session (data user-agent
                                           &key
