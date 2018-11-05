@@ -107,7 +107,10 @@
    (format nil "one plus this user id is ~D" (1+ user-id))))
 
 
-(defun json-resp (body &key (return-code 200))
+(defun json-resp (body &key (return-code 200)
+                         ;; (encoding-fn 'cl-json:encode-json-to)
+                         (encoding-fn 'cl-json:encode-json-to-string)
+)
   "Convert a lisp object into a json response with the appropriate content type
 to be called within a hunchentoot handler. "
 
@@ -117,11 +120,12 @@ to be called within a hunchentoot handler. "
   ;; (cl-json:encode-json body)
   ;; https://tbnl-devel.common-lisp.narkive.com/CO37ACWN/
   ;; hunchentoot-devel-how-to-properly-write-directly-to-output-stream
-  (let ((out (flex:make-flexi-stream (hunchentoot:send-headers)
+  '(let ((out (flex:make-flexi-stream (hunchentoot:send-headers)
                                      :external-format
                                      hunchentoot:*hunchentoot-default-external-format*
                                      :element-type 'character)))
-    (cl-json:encode-json body out)))
+    (funcall encoding-fn body out))
+  (funcall encoding-fn body))
 
 (defun json-req ()
   "Obtain the current request payload as a decoded json object."
