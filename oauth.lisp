@@ -16,6 +16,7 @@
   access-token
   refresh-token
   expires-in
+  expires
   token-type
   error
   error-description
@@ -159,7 +160,8 @@
 
         ;; maybe invalidate session if token expired
         (when login
-          (with-slots (expires-in obtained-at) (api-login-token login)
+          (with-slots (expires-in expires obtained-at) (api-login-token login)
+            (setf expires-in (or expires-in expires))
             (assert obtained-at)
             (let* ((now (GET-UNIVERSAL-TIME))
                    (expires-at (+ obtained-at expires-in)))
