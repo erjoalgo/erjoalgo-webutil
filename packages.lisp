@@ -47,7 +47,9 @@
    #:oauth-exchange-code-for-token
    #:oauth-token-access-token
    #:oauth-token-refresh-token
+   #:oauth-client-meta
    #:make-api-login
+   #:api-login-client
    #:create-hunchentoot-oauth-redirect-dispatcher
    #:oauth-session-user-email
    #:google-userinfo-email
@@ -63,4 +65,7 @@
    #:sexchange-login-key
    #:google-login-key
    #:hunchentoot-create-oauth-redirect-handler
-   #:first-file-matching))
+   #:first-file-matching
+   #:sexchange-depaginator
+   #:sexchange-authenticator
+   #:*sexchange-login*))
