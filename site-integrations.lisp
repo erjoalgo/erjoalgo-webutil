@@ -2,22 +2,26 @@
 
 (defvar sexchange-login-key :sexchange-login)
 
+(defvar *sexchange-login* nil)
+
 (defun sexchange-authenticator (http-request is-refresh-p
                                 &key (login-key sexchange-login-key))
   (when is-refresh-p
     (error "not implemented"))
-  (let* ((login (hunchentoot:session-value login-key))
-         (key
-          (slot-value-> login
-                        (erjoalgo-webutil::client
-                         erjoalgo-webutil::key)))
-         (token (slot-value-> login
-                              (erjoalgo-webutil::token
-                               erjoalgo-webutil::access-token))))
-    (assert (and key token))
-    (with-slots (qparams) http-request
-      (push (cons "key" key) qparams)
-      (push (cons "access_token" token) qparams))))
+  (let* ((login (or *sexchange-login*
+                    (hunchentoot:session-value login-key)))
+         key)
+    (with-slots (token client) login
+      (setf key (oauth-client-key client))
+      ;; authentication not always required by the api
+      ;; (assert key)
+      ;; (assert (or key token client))
+      (with-slots (qparams) http-request
+        (when key
+          (push (cons "key" key) qparams))
+        (when token
+          (push (cons "access_token" (oauth-token-access-token token))
+                qparams))))))
 
 (defun sexchange-depaginator (resp-body http-request page-idx)
   (with-slots (qparams) http-request
