@@ -70,4 +70,6 @@
             (if (DIGIT-CHAR-P (aref attr 0))
                 (parse-integer attr)
                 (intern (json-key-to-lisp attr) :keyword)))
-          (cl-ppcre:split "][.]|[][.]" path)))
+          (remove-if (lambda (attr)
+                       (zerop (length attr)))
+                     (cl-ppcre:split "][.]|[][.]" path))))
