@@ -74,6 +74,7 @@
   (let* ((login (or *google-login*
                     (hunchentoot:session-value login-key))))
     (vom:debug "login is ~A~%" login)
+    (assert login)
     (with-slots (client token key) login
       (setf key (or key (when client (oauth-client-key client))))
       (vom:debug4 "api-client: value of key: ~A~%" key)
