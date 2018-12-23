@@ -142,6 +142,9 @@
                            (cond
                              ((ppcre:scan "application/json" content-type)
                                         ; TODO get charset from encoding
+                              (vom:debug "raw json: ~A~%"
+                                         (-> usable-content
+                                             (babel:octets-to-string :encoding :utf-8)))
                                (setf usable-content
                                      (-> usable-content
                                          (babel:octets-to-string :encoding :utf-8)
