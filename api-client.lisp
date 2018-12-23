@@ -149,8 +149,6 @@
                              ((ppcre:scan "application/x-www-form-urlencoded" content-type)
                               (setf usable-content (drakma::dissect-query usable-content))))
                            (vom:debug "response: ~A~%" usable-content)
-                           (format t "api-client: value of usable-content: ~A~%"
-                                   usable-content)
                            ;; (assert nil)
                            (values usable-content http-code content)))))))
         ;; (setf max-pages 30)
