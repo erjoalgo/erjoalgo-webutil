@@ -62,7 +62,7 @@
 
   `(progn
      (defparameter ,var nil)
-     ,@(loop for ((allowed-methods uri-regexp . capture-names) . body) in routes
+     ,@(loop for ((allowed-methods uri-regexp . capture-names) . body) in (reverse routes)
           as sanitized =
             (string-upcase (cl-ppcre:regex-replace-all "[^a-zA-Z0-9]" uri-regexp "-"))
           as scanner-sym = (gensym (format nil "SCANNER-~A-" sanitized))
