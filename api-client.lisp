@@ -35,11 +35,12 @@
   "default retry count used by api-req")
 
 (defstruct http-request
-  (method :get)
+  method
   ;; base-url
   resource
   qparams
   additional-headers
+  content
   rest)
 
 (defun api-req (http-request
@@ -79,7 +80,12 @@
    When AUTO-REFRESH-P is non-nil, an one-time attempt (per retry) is made, if possible,
    to refresh the token on 403 errors."
 
-  (with-slots (method resource qparams additional-headers rest) http-request
+  (with-slots (method resource qparams additional-headers content rest) http-request
+    (unless method
+      (setf method (if content :post :get)))
+    (unless (or (eq method :get)
+                (assoc :content-type additional-headers))
+      (push (cons :content-type "application/json") additional-headers))
     (when authenticator
       ;; mutate http-request to add auth info
       (funcall authenticator http-request nil))
@@ -97,13 +103,14 @@
                       for i below RETRY-COUNT do
                         (handler-case
                             (return-from annoying-NS-TRY-AGAIN-CONDITION-retry
-                                (apply
-                                 'drakma:http-request url
-                                                   :method method
-                                 ;; TODO compute this once. force enhancers to produce string
-                                 :parameters (alist-to-http-params qparams)
-                                 :additional-headers additional-headers
-                                 rest))
+                              (apply
+                               'drakma:http-request url
+                               :method method
+                               ;; TODO compute this once. force enhancers to produce string
+                               :parameters (alist-to-http-params qparams)
+                               :content content
+                               :additional-headers additional-headers
+                               rest))
                           ((or USOCKET:NS-TRY-AGAIN-CONDITION USOCKET:TIMEOUT-ERROR)
                               (ex)
                             (setf  _ex ex)
