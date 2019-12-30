@@ -85,7 +85,8 @@
       (setf method (if content :post :get)))
     (unless (or (eq method :get)
                 (assoc :content-type additional-headers))
-      (push (cons :content-type "application/json") additional-headers))
+      (push (cons :content-type (if qparams "application/x-www-form-urlencoded"
+                                    "application/json")) additional-headers))
     (when authenticator
       ;; mutate http-request to add auth info
       (funcall authenticator http-request nil))
