@@ -1,6 +1,6 @@
 (asdf:defsystem :erjoalgo-webutil
                 :serial t
-                :description "various utilities to support web development"
+                :description "Framework for defining [oauth] http api client & sever."
                 :license "GPLv3"
                 :author "Ernesto Alfonso <erjoalgo@gmail.com>"
                 :depends-on (:cl-json
