@@ -4,8 +4,6 @@
 
 (in-package #:erjoalgo-webutil/test)
 
-;; (fiasco-clear-tests)
-
 (deftest test-to-camel-case nil
   (is (equal "commentThreads" (lisp-to-json-key :comment-threads)))
   (is (equal "nextPageToken" (lisp-to-json-key :next-page-token)))
@@ -85,8 +83,5 @@
        (total :TOTAL-RESULTS))
     (is (eq per-page 50))
     (is (eq total 98))))
-
-;; (deftest test-json-path-split ()
-;;   json-path-split)
 
 (run-package-tests :interactive t)

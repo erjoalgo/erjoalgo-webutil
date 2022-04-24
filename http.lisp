@@ -108,16 +108,15 @@
 
 
 (defun json-resp (body &key (return-code 200)
-                         ;; (encoding-fn 'cl-json:encode-json-to)
-                         (encoding-fn 'cl-json:encode-json-to-string)
-)
+                         (encoding-fn 'cl-json:encode-json-to-string))
   "Convert a lisp object into a json response with the appropriate content type
 to be called within a hunchentoot handler. "
 
   (setf (hunchentoot:return-code*) return-code)
   (setf (hunchentoot:content-type*) "application/json")
 
-  ;; (cl-json:encode-json body)
+  ;; TODO consider writing json directly to stream
+  ;; (encoding-fn 'cl-json:encode-json-to)
   ;; https://tbnl-devel.common-lisp.narkive.com/CO37ACWN/
   ;; hunchentoot-devel-how-to-properly-write-directly-to-output-stream
   '(let ((out (flex:make-flexi-stream (hunchentoot:send-headers)
@@ -196,11 +195,8 @@ to be called within a hunchentoot handler. "
             (unwind-protect (progn ,@body)
               (fmakunbound ',fname))))))
 
-(defun log-request (context-string &key
-                                     (log-fn 'vom:debug)
-                                     (request hunchentoot:*request*))
-  ;; TODO parameterize log
-  (declare (ignore log-fn))
+(defun log-request (context-string
+                    &key (request hunchentoot:*request*))
   (vom:debug "~A: ~A ~A~A ~A (~A)"
              context-string
 

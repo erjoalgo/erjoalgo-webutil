@@ -152,9 +152,7 @@
                              ((ppcre:scan "application/x-www-form-urlencoded" content-type)
                               (setf usable-content (drakma::dissect-query usable-content))))
                            (vom:debug "response: ~A~%" usable-content)
-                           ;; (assert nil)
                            (values usable-content http-code content)))))))
-        ;; (setf max-pages 30)
         (if (null depaginator)
           (req)
             (let (all-items last-http-code last-resp-body)
@@ -164,10 +162,7 @@
                                          (eq 2 (floor last-http-code 100)))
                                  (multiple-value-bind (items continue?)
                                      (funcall depaginator last-resp-body http-request page-idx)
-                                   (when continue?
-                                     ;; (assert (assoq (http-request-qparams http-request) "page"))
-                                     )
-                                        ; TODO destructive append
+                                   ;; TODO destructive append
                                    (setf all-items (append all-items items))
                                    continue?))
                  while (and continue (or (null max-pages)

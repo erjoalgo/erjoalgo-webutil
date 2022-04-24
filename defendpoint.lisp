@@ -1,4 +1,5 @@
 (in-package #:erjoalgo-webutil)
+
 ;; the keywords below whose default forms are undefined symbols
 ;; should be either provided explicitly
 ;; or their defaults let-bound at compile time via COMPILER-LET
@@ -14,16 +15,16 @@
                          (authenticator authenticator)
                          (api-req-extra-args-compile-time
                           api-req-extra-args-compile-time))
-  ;; "Defines a function FUN-SYM that calls an api-endpoint.
-  ;;  DEFAULT-PARAMS specifies defaults parameters used in the request
-  ;;  unless overridden later by the caller."
+  "Defines a function FUN-SYM that calls an api-endpoint.
+
+   DEFAULT-PARAMS specifies defaults parameters used in the request
+   unless overridden later by the caller."
   (assert resource)
   (let ((api-req-extra-args-runtime-sym (gensym "api-req-extra-args-runtime-")))
     (destructuring-bind (lambda-list http-request-sym update-http-request-form)
         (or req-update `(nil ,(gensym "http-request-") nil))
       (vom:debug "lambda-list: ~A~%" lambda-list)
       `(defun ,name ,(append lambda-list `(&rest ,api-req-extra-args-runtime-sym))
-         ;; ,(format nil "~A ~A/~A ~A" method api-base-url resource (or default-params ""))
          (let ((,http-request-sym
                 (make-http-request :method ,method :resource ,resource
                                    ,@make-http-request-extra-args)))

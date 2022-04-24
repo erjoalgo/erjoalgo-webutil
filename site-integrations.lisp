@@ -13,9 +13,6 @@
          key)
     (with-slots (token client) login
       (setf key (oauth-client-key client))
-      ;; authentication not always required by the api
-      ;; (assert key)
-      ;; (assert (or key token client))
       (with-slots (qparams) http-request
         (when key
           (push (cons "key" key) qparams))
@@ -60,7 +57,6 @@
                                 qparams :test 'equal)
                          (car (push (cons "pageToken" 1) qparams)))))
                 ;; increase page number
-                ;; (assert page-cons)
                 (setf (cdr page-cons) page-token)
                 (vom:debug "new qparams: ~A~%" qparams)
                 (values items t))

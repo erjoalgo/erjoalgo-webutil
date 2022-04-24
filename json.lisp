@@ -1,6 +1,6 @@
 (in-package #:erjoalgo-webutil)
 
-;; TODO
+;; TODO use lexical or dynamic binding instead
 (setf cl-json:*json-identifier-name-to-lisp* 'json-key-to-lisp)
 
 (defmacro make-from-json-alist (json-alist type)

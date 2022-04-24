@@ -71,7 +71,6 @@
   (with-slots (scopes client-id auth-uri) oauth-client
     (format nil "~A?~A"
             auth-uri
-            ;; "http://localhost:1234/"
             (-> (params
                  "scope" (format nil "~{~A~^ ~}" scopes-to-request)
                  "access_type" "online"
@@ -116,7 +115,6 @@
             :qparams query-params)
            :api-base-url
            token-uri))
-      ;; (vom:debug "headers: ~A~%" headers)
       (if (not (eq 200 status))
           (error "non-200 status code: ~A ~A" status content)
           (let ((json content))
@@ -124,7 +122,7 @@
              json
              (make-from-json-alist oauth-token)))))))
 
-                                        ; TODO make this work with non-google oauth servers
+;; TODO make this work with oauth servers other than google's
 (defun hunchentoot-create-oauth-redirect-handler
     (oauth-client scopes-to-request handler
      &key (oauth-authorize-uri-path "/oauth/authorize")
