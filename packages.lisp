@@ -40,7 +40,6 @@
    #:*api-req-retry-count*
 
    ;; oauth
-
    #:oauth-make-client-from-file
    #:oauth-token-auth-header
    #:oauth-server-redirect-url
