@@ -51,7 +51,8 @@
                   token-refresh-p
                   (retry-count *api-req-retry-count*)
                   (retry-delay 2)
-                  (api-base-url *api-base-url*))
+                  (api-base-url *api-base-url*)
+                  content-type-override)
 
   "Make a REST api request to the URL: (CONCAT API-BASE-URL RESOURCE)
    with query parameters PARAMS-ALIST. (Note that no slash is added in between.)
@@ -134,7 +135,8 @@
                          (with-json-paths resp-headers
                              ((content-encoding "content-encoding")
                               (content-type "content-type"))
-
+                           (when content-type-override
+                             (setf content-type content-type-override))
                            (if (equal "gzip" content-encoding)
                                (setf usable-content
                                      (gzip-stream::gunzip-byte-array usable-content)))
