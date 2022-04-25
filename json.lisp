@@ -27,16 +27,18 @@
 (defmacro with-json-paths (obj var-paths &body body)
   "Let-bind certain json paths within json OBJ.
    VAR-PATHS has the form (VAR JSON-PATH). See test for examples."
-  `(let ,(loop for var-path in var-paths
-               collect
-               (let (var path)
-                 (if (atom var-path)
-                     (setf var var-path
-                           path (lisp-to-json-key var))
-                     (setf var (first var-path)
-                           path (second var-path)))
-                 `(,var (json-get-nested ,obj ,path))))
-     ,@body))
+  (with-gensyms (obj-sym)
+    `(let* ,(cons (list obj-sym obj)
+                  (loop for var-path in var-paths
+                     collect
+                       (let (var path)
+                         (if (atom var-path)
+                             (setf var var-path
+                                   path (lisp-to-json-key var))
+                             (setf var (first var-path)
+                                   path (second var-path)))
+                         `(,var (json-get-nested ,obj-sym ,path)))))
+       ,@body)))
 
 (defun json-get-nested (alist path)
   "Get the value in ALIST at the given PATH."
