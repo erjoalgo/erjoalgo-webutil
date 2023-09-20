@@ -9,7 +9,7 @@
                  while line
                  collect line)))))
 
-(defmacro assoq (alist item)
+(defmacro alist-get (alist item)
   "get ITEM in ALIST"
   `(cdr (assoc ,item ,alist :test 'equal)))
 

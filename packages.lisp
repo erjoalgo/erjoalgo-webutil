@@ -4,7 +4,7 @@
 
    ;; util
    #:read-file
-   #:assoq
+   #:alist-get
    #:->
    #:->>
 
