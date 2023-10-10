@@ -49,3 +49,11 @@
   (if slots
       `(slot-value-> (slot-value ,obj ',(car slots)) ,(cdr slots))
       obj))
+
+(defmacro when-let (bindings &body body)
+  (if bindings
+      (destructuring-bind (var form) (car bindings)
+        `(let ((,var ,form))
+           (when ,var
+             (when-let ,(cdr bindings) ,@body))))
+      `(progn ,@body)))

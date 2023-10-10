@@ -7,6 +7,7 @@
    #:alist-get
    #:->
    #:->>
+   #:when-let
 
    ;; json
    #:make-from-json-alist
