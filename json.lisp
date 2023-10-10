@@ -82,3 +82,12 @@
           (remove-if (lambda (attr)
                        (zerop (length attr)))
                      (cl-ppcre:split "][.]|[][.]" path))))
+
+(defun struct-to-alist (struct)
+  (loop
+    with slots = (sb-mop:class-slots (find-class (class-name (class-of struct))))
+    for slot in slots
+    collect
+    (cons
+     (slot-value slot 'SB-PCL::NAME)
+     (slot-value struct (slot-value slot 'SB-PCL::NAME)))))

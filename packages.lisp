@@ -18,6 +18,7 @@
    #:json-path-split
    #:json-resp
    #:json-req
+   #:struct-to-alist
 
    ;; http
    #:defroutes
