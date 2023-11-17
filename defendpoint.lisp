@@ -6,15 +6,16 @@
 ;; TODO muffle warnings
 ;; there should be 7 warnings
 (defmacro defendpoint (name
-                       &key (base-url base-url)
-                         (req-update req-update)
-                         (method method)
-                         (resource resource)
+                       &key
+                         (base-url (gensym "base-url-"))
+                         (req-update (gensym "req-update-"))
+                         (method (gensym "method-"))
+                         (resource (gensym "resource-"))
                          make-http-request-extra-args
-                         (depaginator depaginator)
-                         (authenticator authenticator)
+                         (depaginator (gensym "depaginator-"))
+                         (authenticator (gensym "authenticator-"))
                          (api-req-extra-args-compile-time
-                          api-req-extra-args-compile-time))
+                          (gensym "api-req-extra-args-compile-time-")))
   "Defines a function FUN-SYM that calls an api-endpoint.
 
    DEFAULT-PARAMS specifies defaults parameters used in the request

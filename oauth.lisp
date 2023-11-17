@@ -181,7 +181,7 @@
                 (let* ((original-url
                         (check-nonnil (hunchentoot:session-value original-url-session-key)))
                        (code (-> (hunchentoot:get-parameters request)
-                                 (assoq "code")
+                                 (alist-get "code")
                                  check-nonnil))
                        (oauth-token (check-nonnil
                                      (oauth-exchange-code-for-token
